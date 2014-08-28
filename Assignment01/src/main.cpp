@@ -10,7 +10,7 @@
 #include <glm/gtc/type_ptr.hpp> //Makes passing matrices to shaders easier
 
 
-//--Main
+//--Main--
 int main(int argc, char **argv)
 {
    // Initialize glut
