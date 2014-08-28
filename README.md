@@ -1,4 +1,4 @@
-cs680Burfield
-=============
+CS 680 Computer Grahpics
 
-UNR Graphics Class
+
+Nolan Burfield
