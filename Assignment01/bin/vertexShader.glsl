@@ -1,4 +1,3 @@
-
 attribute vec3 v_position;
 attribute vec3 v_color;
 varying vec3 color;

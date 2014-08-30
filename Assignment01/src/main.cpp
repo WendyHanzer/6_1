@@ -43,7 +43,8 @@ void reshape(int n_w, int n_h);
 void keyboard(unsigned char key, int x_pos, int y_pos);
 
 //--Resource management
-bool initialize();
+bool initialize(char *vs, char *fs);
+static char* readShaderSource(const char* file);
 void cleanUp();
 
 //--Random time things
@@ -54,6 +55,27 @@ std::chrono::time_point<std::chrono::high_resolution_clock> t1,t2;
 //--Main
 int main(int argc, char **argv)
 {
+    //Setup the shader file
+	
+	//Shader Variables
+	char stdVertShader[] = "vertexShader.glsl";
+	char stdFragShader[] = "fragmentShader.glsl";
+    char *vertexShader;
+    char *fragmentShader;
+	
+	//Check if there was command line files
+	//--Read in as vertex shader then fragment shader--
+	if(argc == 3)
+       {  
+	    vertexShader = argv[1];
+        fragmentShader = argv[2];
+	   }
+	else
+	   {
+	    vertexShader = stdVertShader;
+        fragmentShader = stdFragShader;
+	   }
+ 
     // Initialize glut
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
@@ -78,7 +100,7 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyboard);// Called if there is keyboard input
 
     // Initialize all of our resources(shaders, geometry)
-    bool init = initialize();
+    bool init = initialize(vertexShader, fragmentShader);
     if(init)
     {
         t1 = std::chrono::high_resolution_clock::now();
@@ -171,7 +193,7 @@ void keyboard(unsigned char key, int x_pos, int y_pos)
     }
 }
 
-bool initialize()
+bool initialize(char *vs, char *fs)
 {
     // Initialize basic geometry and shaders for this example
 
@@ -235,30 +257,32 @@ bool initialize()
     GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    //Shader Sources
-    // Put these into files and write a loader in the future
-    // Note the added uniform!
-    const char *vs =
-        "attribute vec3 v_position;"
-        "attribute vec3 v_color;"
-        "varying vec3 color;"
-        "uniform mat4 mvpMatrix;"
-        "void main(void){"
-        "   gl_Position = mvpMatrix * vec4(v_position, 1.0);"
-        "   color = v_color;"
-        "}";
-
-    const char *fs =
-        "varying vec3 color;"
-        "void main(void){"
-        "   gl_FragColor = vec4(color.rgb, 1.0);"
-        "}";
+    //Shader Sources	
+	//Vertex Shader
+	GLchar* vertexSource = readShaderSource(vs);
+	
+	//Check if correct file
+	if(vertexSource == NULL)
+	   {
+        std::cerr << "FAILED TO FIND VERTEX SHADER FILE!" << vs << std::endl;
+        return false;
+	   }
+	
+    //Fragment Shader
+	GLchar* fragmentSource = readShaderSource(fs);
+	
+	//Check if correct file
+	if(fragmentSource == NULL)
+	   {
+        std::cerr << "FAILED TO FIND FRAGMENT SHADER FILE!" << std::endl;
+        return false;
+	   }
 
     //compile the shaders
     GLint shader_status;
 
     // Vertex shader first
-    glShaderSource(vertex_shader, 1, &vs, NULL);
+    glShaderSource(vertex_shader, 1, (const GLchar**) &vertexSource, NULL);
     glCompileShader(vertex_shader);
     //check the compile status
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &shader_status);
@@ -269,7 +293,7 @@ bool initialize()
     }
 
     // Now the Fragment shader
-    glShaderSource(fragment_shader, 1, &fs, NULL);
+    glShaderSource(fragment_shader, 1, (const GLchar**) &fragmentSource, NULL);
     glCompileShader(fragment_shader);
     //check the compile status
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &shader_status);
@@ -338,6 +362,40 @@ bool initialize()
 
     //and its done
     return true;
+}
+
+static char* readShaderSource(const char* file)
+{
+    //Variables
+	long size;
+	char* buffer;
+
+    //Open the file
+	FILE* source = fopen(file, "r");
+	
+    //Check if the file did not open
+	if(source == NULL)
+	   {
+	    return NULL;
+	   }
+	   
+    //Get end of file, and location
+	fseek(source, 0L, SEEK_END);
+	size = ftell(source);
+	
+	//create the buffer pointer
+	fseek(source, 0L, SEEK_SET);
+	buffer = new char[size+1];
+	
+	//Read into buffer
+	fread(buffer, 1, size, source);
+	
+	//add end to buffer
+	buffer[size] = ' ';
+	
+	//Close file and return
+	fclose(source);
+	return buffer;
 }
 
 void cleanUp()
