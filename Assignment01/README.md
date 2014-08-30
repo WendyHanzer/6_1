@@ -15,6 +15,7 @@ Building This Example
 To build this example just 
 
 >$ cd build
+
 >$ make
 
 *If you are using a Mac you will need to edit the makefile in the build directory*
@@ -24,6 +25,7 @@ The excutable will be put in bin
 To run the program
 
 >$ cd ../bin
+
 >$ ./Matrix
 
 Additional Notes For OSX Users
