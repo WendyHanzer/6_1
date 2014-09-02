@@ -23,6 +23,7 @@ To build this example just
 The excutable will be put in bin
 
 To run the program
+
 *Program takes shader file names as command line arguments in the order of: vertexShader fragmentShader*
 
 >$ cd ../bin
