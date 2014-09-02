@@ -2,6 +2,7 @@
 CC=g++
 LIBS= -lglut -lGLEW -lGL
 
+
 # For Macs uncomment the next line and comment out the previous one
 #CC=clang++
 #LIBS=  -framework OpenGL -framework GLUT -framework Cocoa -lGLEW -stdlib=libc++
