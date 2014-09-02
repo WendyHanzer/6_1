@@ -166,7 +166,9 @@ void update()
     float dt = getDT();// if you have anything moving, use dt.
 
     angle += dt * M_PI/2; //move through 90 degrees a second
-    model = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0, 1.0, 0.0)) * glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(angle), 0.0, 4.0 * cos(angle)));
+
+    //Rotate and translate object
+    model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(angle), 0.0, 4.0 * cos(angle))) * glm::rotate(glm::mat4(1.0f), (angle * 10), glm::vec3(0.0, 1.0, 0.0));
     // Update the state of the scene
     glutPostRedisplay();//call the display callback
 }
