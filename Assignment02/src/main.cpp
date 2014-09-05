@@ -22,7 +22,9 @@ struct Vertex
 int w = 640, h = 480;// Window size
 GLuint program;// The GLSL program handle
 GLuint vbo_geometry;// VBO handle for our geometry
-bool ROTATE_FLAG = false;
+bool ROTATE_FLAG = true;
+bool ROTATE_FOREWARD = true;
+bool SPIN_FOREWARD = true;
 
 //uniform locations
 GLint loc_mvpmat;// Location of the modelviewprojection matrix in the shader
@@ -43,6 +45,7 @@ void update();
 void reshape(int n_w, int n_h);
 void keyboard(unsigned char key, int x_pos, int y_pos);
 void menu(int id);
+void mouse(int button, int state, int x, int y);
 
 //--Resource management
 bool initialize(char *vs, char *fs);
@@ -105,6 +108,7 @@ int main(int argc, char **argv)
 	glutAddMenuEntry("Pause", 2);
 	glutAddMenuEntry("Quit", 3);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
+	glutMouseFunc(mouse);
 
     // Initialize all of our resources(shaders, geometry)
     bool init = initialize(vertexShader, fragmentShader);
@@ -169,17 +173,52 @@ void render()
 void update()
 {
     //total time
-    static float angle = 0.0;
+    static float rotateAngle = 0.0;
+	static float spinAngle = 0.0;
     float dt = getDT();// if you have anything moving, use dt.
 
     if(ROTATE_FLAG)
 	   {
-        //Update angle
-        angle += dt * M_PI/2; //move through 90 degrees a second
+	    if(ROTATE_FOREWARD && SPIN_FOREWARD)
+		   {
+            //Update angle
+            rotateAngle += dt * M_PI/2; //move through 90 degrees a second
+			spinAngle += dt * M_PI/2; //move through 90 degrees a second
 
-        //Rotate and translate object
-        model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(angle), 0.0, 4.0 * cos(angle))) * 
-		        glm::rotate(glm::mat4(1.0f), (angle * 10), glm::vec3(0.0, 1.0, 0.0));
+            //Rotate and translate object
+            model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
+		            glm::rotate(glm::mat4(1.0f), (spinAngle * 10), glm::vec3(0.0, 1.0, 0.0));
+           }
+	    else if(ROTATE_FOREWARD && !SPIN_FOREWARD)
+           {
+            //Update angle
+            spinAngle -= dt * M_PI/2; //move through 90 degrees a second
+			rotateAngle += dt * M_PI/2; //move through 90 degrees a second
+
+            //Rotate and translate object
+            model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
+		            glm::rotate(glm::mat4(1.0f), (spinAngle * 10), glm::vec3(0.0, 1.0, 0.0));
+		   }
+	    else if(!ROTATE_FOREWARD && SPIN_FOREWARD)
+           {
+            //Update angle
+            rotateAngle -= dt * M_PI/2; //move through 90 degrees a second
+			spinAngle += dt * M_PI/2; //move through 90 degrees a second
+
+            //Rotate and translate object
+            model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
+		            glm::rotate(glm::mat4(1.0f), (spinAngle * 10), glm::vec3(0.0, 1.0, 0.0));
+		   }
+	    else if(!ROTATE_FOREWARD && !SPIN_FOREWARD)
+           {
+            //Update angle
+            rotateAngle -= dt * M_PI/2; //move through 90 degrees a second
+			spinAngle -= dt * M_PI/2; //move through 90 degrees a second
+
+            //Rotate and translate object
+            model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
+		            glm::rotate(glm::mat4(1.0f), (spinAngle * 10), glm::vec3(0.0, 1.0, 0.0));
+		   }
 	   }
 				
     // Update the state of the scene
@@ -206,6 +245,30 @@ void keyboard(unsigned char key, int x_pos, int y_pos)
     {
         exit(0);
     }
+	
+	//reverse cube direction
+	if(key == ',')
+	{
+	   ROTATE_FOREWARD = false;
+	}
+	
+	//foreward cube
+	if(key == '.')
+	{
+	   ROTATE_FOREWARD = true;
+	}
+	
+	//reverse spin direction
+	if(key == 'z')
+	{
+	   SPIN_FOREWARD = false;
+	}
+	
+	//foreward spin
+	if(key == 'x')
+	{
+	   SPIN_FOREWARD = true;
+	}
 }
 
 bool initialize(char *vs, char *fs)
@@ -432,6 +495,15 @@ void menu(int id)
 	    case 3:
 	       exit(0);
 		   break;
+	   }
+}
+
+void mouse(int button, int state, int x, int y)
+{
+    //On click pause
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	   {
+	    ROTATE_FOREWARD = !ROTATE_FOREWARD;
 	   }
 }
 
