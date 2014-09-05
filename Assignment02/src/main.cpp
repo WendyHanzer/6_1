@@ -4,8 +4,6 @@
 #include <iostream>
 #include <chrono>
 
-//Hello
-
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,6 +22,7 @@ struct Vertex
 int w = 640, h = 480;// Window size
 GLuint program;// The GLSL program handle
 GLuint vbo_geometry;// VBO handle for our geometry
+bool ROTATE_FLAG = false;
 
 //uniform locations
 GLint loc_mvpmat;// Location of the modelviewprojection matrix in the shader
@@ -43,6 +42,7 @@ void render();
 void update();
 void reshape(int n_w, int n_h);
 void keyboard(unsigned char key, int x_pos, int y_pos);
+void menu(int id);
 
 //--Resource management
 bool initialize(char *vs, char *fs);
@@ -100,6 +100,11 @@ int main(int argc, char **argv)
     glutReshapeFunc(reshape);// Called if the window is resized
     glutIdleFunc(update);// Called if there is nothing else to do
     glutKeyboardFunc(keyboard);// Called if there is keyboard input
+	glutCreateMenu(menu);
+	glutAddMenuEntry("Start", 1);
+	glutAddMenuEntry("Pause", 2);
+	glutAddMenuEntry("Quit", 3);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     // Initialize all of our resources(shaders, geometry)
     bool init = initialize(vertexShader, fragmentShader);
@@ -167,10 +172,16 @@ void update()
     static float angle = 0.0;
     float dt = getDT();// if you have anything moving, use dt.
 
-    angle += dt * M_PI/2; //move through 90 degrees a second
+    if(ROTATE_FLAG)
+	   {
+        //Update angle
+        angle += dt * M_PI/2; //move through 90 degrees a second
 
-    //Rotate and translate object
-    model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(angle), 0.0, 4.0 * cos(angle))) * glm::rotate(glm::mat4(1.0f), (angle * 10), glm::vec3(0.0, 1.0, 0.0));
+        //Rotate and translate object
+        model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(angle), 0.0, 4.0 * cos(angle))) * 
+		        glm::rotate(glm::mat4(1.0f), (angle * 10), glm::vec3(0.0, 1.0, 0.0));
+	   }
+				
     // Update the state of the scene
     glutPostRedisplay();//call the display callback
 }
@@ -400,6 +411,28 @@ static char* readShaderSource(const char* file)
 	//Close file and return
 	fclose(source);
 	return buffer;
+}
+
+void menu(int id)
+{
+    //switch on id
+    switch (id) 
+       {
+	    //Start
+	    case 1:
+		   ROTATE_FLAG = true;
+		   break;
+		
+		//Pause      
+	    case 2:
+	       ROTATE_FLAG = false;
+		   break;  
+		
+		//Escape
+	    case 3:
+	       exit(0);
+		   break;
+	   }
 }
 
 void cleanUp()
