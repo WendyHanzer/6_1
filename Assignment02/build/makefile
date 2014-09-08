@@ -20,4 +20,4 @@ all: ../bin/Matrix
 	$(CC) $(CXXFLAGS) ../src/main.cpp -o ../bin/Matrix $(LIBS) $(PATHS)
 
 clean:
-	rm *.o ../bin/Matrix
+	rm ../bin/Matrix
