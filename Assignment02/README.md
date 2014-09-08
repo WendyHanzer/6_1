@@ -1,6 +1,23 @@
 A simple example of matrix use in OpenGL
 ========================================
 
+Commands
+--------
+
+You should see a color cube in orbit around nothing in a vast blueish nothing.
+The Color cube should be rotating on y-axis.
+
+Directions:
+
+Spin Direction Left: 'z'
+Spin Direction Right: 'x'
+Rotate Direction Left: ','
+Rotate Direction Right: '.'
+
+Left-Click To Reverse Rotation
+
+Right-Click To Bring Up Menu
+
 Building This Example
 ---------------------
 
