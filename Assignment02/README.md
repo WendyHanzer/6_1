@@ -10,8 +10,11 @@ The Color cube should be rotating on y-axis.
 Directions:
 
 Spin Direction Left: 'z'
+
 Spin Direction Right: 'x'
+
 Rotate Direction Left: ','
+
 Rotate Direction Right: '.'
 
 Left-Click To Reverse Rotation
