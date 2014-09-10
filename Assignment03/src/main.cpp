@@ -25,7 +25,6 @@ GLuint vbo_geometry;// VBO handle for our geometry
 bool ROTATE_FLAG = true;
 bool ROTATE_FOREWARD = true;
 bool SPIN_FOREWARD = true;
-int SPIN_SPEED = 1;
 
 //uniform locations
 GLint loc_mvpmat;// Location of the modelviewprojection matrix in the shader
@@ -35,10 +34,12 @@ GLint loc_position;
 GLint loc_color;
 
 //transform matrices
-glm::mat4 model;//obj->world each object should have its own model matrix
+glm::mat4 model_earth;//obj->world each object should have its own model matrix
+glm::mat4 model_moon;
 glm::mat4 view;//world->eye
 glm::mat4 projection;//eye->clip
 glm::mat4 mvp;//premultiplied modelviewprojection
+glm::mat4 mvp2;//premultiplied modelviewprojection
 
 //--GLUT Callbacks
 void render();
@@ -134,7 +135,8 @@ void render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //premultiply the matrix for this example
-    mvp = projection * view * model;
+    mvp = projection * view * model_earth;
+    mvp2 = projection * view * model_moon;
 
     //enable the shader program
     glUseProgram(program);
@@ -162,6 +164,8 @@ void render()
                            (void*)offsetof(Vertex,color));
 
     glDrawArrays(GL_TRIANGLES, 0, 36);//mode, starting index, count
+    glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp2));
+    glDrawArrays(GL_TRIANGLES, 0, 36);//mode, starting index, count
 
     //clean up
     glDisableVertexAttribArray(loc_position);
@@ -186,9 +190,9 @@ void update()
             rotateAngle += dt * M_PI/2; //move through 90 degrees a second
 			spinAngle += dt * M_PI/2; //move through 90 degrees a second
 
-            //Rotate and translate object
-            model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle * SPIN_SPEED), glm::vec3(0.0, 1.0, 0.0));
+            //Rotate and translate object 
+            model_earth = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
+		            glm::rotate(glm::mat4(1.0f), (spinAngle), glm::vec3(0.0, 1.0, 0.0));
            }
 	    else if(ROTATE_FOREWARD && !SPIN_FOREWARD)
            {
@@ -197,8 +201,8 @@ void update()
 			rotateAngle += dt * M_PI/2; //move through 90 degrees a second
 
             //Rotate and translate object
-            model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle * SPIN_SPEED), glm::vec3(0.0, 1.0, 0.0));
+            model_earth = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
+		            glm::rotate(glm::mat4(1.0f), (spinAngle), glm::vec3(0.0, 1.0, 0.0));
 		   }
 	    else if(!ROTATE_FOREWARD && SPIN_FOREWARD)
            {
@@ -207,8 +211,8 @@ void update()
 			spinAngle += dt * M_PI/2; //move through 90 degrees a second
 
             //Rotate and translate object
-            model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle * SPIN_SPEED), glm::vec3(0.0, 1.0, 0.0));
+            model_earth = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
+		            glm::rotate(glm::mat4(1.0f), (spinAngle), glm::vec3(0.0, 1.0, 0.0));
 		   }
 	    else if(!ROTATE_FOREWARD && !SPIN_FOREWARD)
            {
@@ -217,8 +221,8 @@ void update()
 			spinAngle -= dt * M_PI/2; //move through 90 degrees a second
 
             //Rotate and translate object
-            model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle * SPIN_SPEED), glm::vec3(0.0, 1.0, 0.0));
+            model_earth = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
+		            glm::rotate(glm::mat4(1.0f), (spinAngle), glm::vec3(0.0, 1.0, 0.0));
 		   }
 	   }
 				
@@ -269,21 +273,6 @@ void keyboard(unsigned char key, int x_pos, int y_pos)
 	if(key == 'x')
 	{
 	   SPIN_FOREWARD = true;
-	}
-	
-	//Spin speed
-	if(key == '-')
-	{
-	    SPIN_SPEED--;
-		if(SPIN_SPEED == 0)
-		   {
-		    SPIN_SPEED = 1;
-		   }
-	}
-	
-	if(key == '+')
-	{
-	    SPIN_SPEED++;
 	}
 }
 
