@@ -4,22 +4,26 @@ A simple example of matrix use in OpenGL
 Commands
 --------
 
-You should see a color cube in orbit around nothing in a vast blueish nothing.
-The Color cube should be rotating on y-axis.
+There will be two cubes, one is earth the one is the moon, the moon is scaled to 27% of the earth.
+The moon will rotate around the earth in the same direction the earht spins, changing rotation of the 
+earth will not change the moon rotation, but the spinning of the earth will change the moon. 
 
 Directions:
 
-Spin Direction Left: 'z'
+Spin Direction Counterclockwise: 'z' and Down Arrow
 
-Spin Direction Right: 'x'
+Spin Direction Clockwise: 'x' and Up Arrow
 
-Rotate Direction Left: ','
+Rotate Direction Clockwise: ',' and Right Arrow
 
-Rotate Direction Right: '.'
+Rotate Direction Counterclockwise: '.' and Left Arrow
 
 Left-Click To Reverse Rotation
 
 Right-Click To Bring Up Menu
+
+The default "Year" of the cube is 5 minutes. 
+Press 1 to change the year to 1 minute.
 
 Building This Example
 ---------------------

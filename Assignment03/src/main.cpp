@@ -25,6 +25,7 @@ GLuint vbo_geometry;// VBO handle for our geometry
 bool ROTATE_FLAG = true;
 bool ROTATE_FOREWARD = true;
 bool SPIN_FOREWARD = true;
+float YEAR_TO_MIN = 5.0;
 
 //uniform locations
 GLint loc_mvpmat;// Location of the modelviewprojection matrix in the shader
@@ -48,6 +49,8 @@ void reshape(int n_w, int n_h);
 void keyboard(unsigned char key, int x_pos, int y_pos);
 void menu(int id);
 void mouse(int button, int state, int x, int y);
+void specialKeys(int key, int x_pos, int y_pos);
+void printText(char text[]);
 
 //--Resource management
 bool initialize(char *vs, char *fs);
@@ -111,6 +114,7 @@ int main(int argc, char **argv)
 	glutAddMenuEntry("Quit", 3);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 	glutMouseFunc(mouse);
+	glutSpecialFunc(specialKeys);
 
     // Initialize all of our resources(shaders, geometry)
     bool init = initialize(vertexShader, fragmentShader);
@@ -133,6 +137,8 @@ void render()
     //clear the screen
     glClearColor(0.0, 0.0, 0.2, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+
 
     //premultiply the matrix for this example
     mvp = projection * view * model_earth;
@@ -173,56 +179,113 @@ void render()
                            
     //swap the buffers
     glutSwapBuffers();
+	
+   //Print Text
+   char vale[3];
+   printText(vale);
 }
 
 void update()
 {
     //total time
-    static float rotateAngle = 0.0;
-	static float spinAngle = 0.0;
+    static float earthRotate = 0.0;
+	static float earthSpin = 0.0;
+	static float moonRotate = 0.0;
+	static float moonSpin = 0.0;
     float dt = getDT();// if you have anything moving, use dt.
+	glm::mat4 earthTranslation;
+	
+	//Set the correct angle spin based on the year to minute
+	//Algorithm: earthSpinAngle   = (( 365 * 360 ) / ( minutesToYear * 60 ) * degreeToRadians ) --> 365 for days in year
+	//           earthRotateAngle = (( 1   * 360 ) / ( minutesToYear * 60 ) * degreeToRadians ) --> 1 for one translation in a year
+	//			 moonAngle        = (( 13  * 360 ) / ( minutesToYear * 60 ) * degreeToRadians ) --> 13 for rotations, and translations in a year
+		
+	float degreeToRadians = M_PI / 180;
+	float moonAngle = (78.0 / YEAR_TO_MIN) * degreeToRadians;
+	float earthRotateAngle = (6.0 / YEAR_TO_MIN) * degreeToRadians;
+	float earthSpinAngle = (2190.0 / YEAR_TO_MIN) * degreeToRadians;
 
     if(ROTATE_FLAG)
 	   {
 	    if(ROTATE_FOREWARD && SPIN_FOREWARD)
 		   {
-            //Update angle
-            rotateAngle += dt * M_PI/2; //move through 90 degrees a second
-			spinAngle += dt * M_PI/2; //move through 90 degrees a second
+            //Update angle, Earth and Moon
+            earthRotate += dt * earthRotateAngle;
+			earthSpin += dt * earthSpinAngle;
+		    moonRotate += dt * moonAngle;
+		    moonSpin += dt * moonAngle;
+			
+			//Get earth Translation
+			earthTranslation = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(earthRotate), 0.0, 4.0 * cos(earthRotate)));
 
             //Rotate and translate object 
-            model_earth = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle), glm::vec3(0.0, 1.0, 0.0));
+            model_earth = earthTranslation * 
+		                  glm::rotate(glm::mat4(1.0f), (earthSpin), glm::vec3(0.0, 1.0, 0.0));
+					
+			//Have moon follow earth
+			model_moon = glm::translate( earthTranslation, glm::vec3(4.0 * sin(moonRotate), 0.0, 4.0 * cos(moonRotate))) *
+			             glm::rotate(glm::mat4(1.0f), (moonSpin), glm::vec3(0.0, 1.0, 0.0)) *
+						 glm::scale(glm::mat4(1.0f), glm::vec3(0.27f));
            }
 	    else if(ROTATE_FOREWARD && !SPIN_FOREWARD)
            {
             //Update angle
-            spinAngle -= dt * M_PI/2; //move through 90 degrees a second
-			rotateAngle += dt * M_PI/2; //move through 90 degrees a second
+            earthSpin -= dt * earthSpinAngle; 
+			earthRotate += dt * earthRotateAngle;
+		    moonRotate -= dt * moonAngle;
+		    moonSpin -= dt * moonAngle;
 
-            //Rotate and translate object
-            model_earth = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle), glm::vec3(0.0, 1.0, 0.0));
+			//Get earth Translation
+			earthTranslation = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(earthRotate), 0.0, 4.0 * cos(earthRotate)));
+
+            //Rotate and translate object 
+            model_earth = earthTranslation * 
+		                  glm::rotate(glm::mat4(1.0f), (earthSpin), glm::vec3(0.0, 1.0, 0.0));
+					
+			//Have moon follow earth
+			model_moon = glm::translate( earthTranslation, glm::vec3(4.0 * sin(moonRotate), 0.0, 4.0 * cos(moonRotate))) *
+			             glm::rotate(glm::mat4(1.0f), (moonSpin), glm::vec3(0.0, 1.0, 0.0)) *
+						 glm::scale(glm::mat4(1.0f), glm::vec3(0.27f));
 		   }
 	    else if(!ROTATE_FOREWARD && SPIN_FOREWARD)
            {
             //Update angle
-            rotateAngle -= dt * M_PI/2; //move through 90 degrees a second
-			spinAngle += dt * M_PI/2; //move through 90 degrees a second
+            earthRotate -= dt * earthRotateAngle;
+			earthSpin += dt * earthSpinAngle;
+		    moonRotate += dt * moonAngle;
+		    moonSpin += dt * moonAngle;
 
-            //Rotate and translate object
-            model_earth = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle), glm::vec3(0.0, 1.0, 0.0));
+			//Get earth Translation
+			earthTranslation = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(earthRotate), 0.0, 4.0 * cos(earthRotate)));
+
+            //Rotate and translate object 
+            model_earth = earthTranslation * 
+		                  glm::rotate(glm::mat4(1.0f), (earthSpin), glm::vec3(0.0, 1.0, 0.0));
+					
+			//Have moon follow earth
+			model_moon = glm::translate( earthTranslation, glm::vec3(4.0 * sin(moonRotate), 0.0, 4.0 * cos(moonRotate))) *
+			             glm::rotate(glm::mat4(1.0f), (moonSpin), glm::vec3(0.0, 1.0, 0.0)) *
+						 glm::scale(glm::mat4(1.0f), glm::vec3(0.27f));
 		   }
 	    else if(!ROTATE_FOREWARD && !SPIN_FOREWARD)
            {
             //Update angle
-            rotateAngle -= dt * M_PI/2; //move through 90 degrees a second
-			spinAngle -= dt * M_PI/2; //move through 90 degrees a second
+            earthRotate -= dt * earthRotateAngle;
+			earthSpin -= dt * earthSpinAngle;
+		    moonRotate -= dt * moonAngle;
+		    moonSpin -= dt * moonAngle;
 
-            //Rotate and translate object
-            model_earth = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle), glm::vec3(0.0, 1.0, 0.0));
+			//Get earth Translation
+			earthTranslation = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(earthRotate), 0.0, 4.0 * cos(earthRotate)));
+
+            //Rotate and translate object 
+            model_earth = earthTranslation * 
+		                  glm::rotate(glm::mat4(1.0f), (earthSpin), glm::vec3(0.0, 1.0, 0.0));
+					
+			//Have moon follow earth
+			model_moon = glm::translate( earthTranslation, glm::vec3(4.0 * sin(moonRotate), 0.0, 4.0 * cos(moonRotate))) *
+			             glm::rotate(glm::mat4(1.0f), (moonSpin), glm::vec3(0.0, 1.0, 0.0)) *
+						 glm::scale(glm::mat4(1.0f), glm::vec3(0.27f));
 		   }
 	   }
 				
@@ -274,6 +337,45 @@ void keyboard(unsigned char key, int x_pos, int y_pos)
 	{
 	   SPIN_FOREWARD = true;
 	}
+	
+	//Make year 1 minute
+	if(key == '1')
+	{
+	   YEAR_TO_MIN = 1;
+	}
+	
+	//Make year 5 minutes
+	if(key == '5')
+	{
+	   YEAR_TO_MIN = 5;
+	}
+}
+
+void specialKeys(int key, int x_pos, int y_pos)
+{
+   //Key Up
+   if(key == GLUT_KEY_UP)
+   {
+       SPIN_FOREWARD = true;
+   } 
+   
+   //Key Down
+   if(key == GLUT_KEY_DOWN)
+   {
+       SPIN_FOREWARD = false;
+   }
+   
+   //Key Left
+   if(key == GLUT_KEY_LEFT)
+   {
+       ROTATE_FOREWARD = true;
+   }
+   
+   //Key Right
+   if(key == GLUT_KEY_RIGHT)
+   {
+       ROTATE_FOREWARD = false;
+   }
 }
 
 bool initialize(char *vs, char *fs)
@@ -527,4 +629,18 @@ float getDT()
     ret = std::chrono::duration_cast< std::chrono::duration<float> >(t2-t1).count();
     t1 = std::chrono::high_resolution_clock::now();
     return ret;
+}
+
+void printText(char text[])
+{
+    //Print the text
+	glRasterPos3f(10, 10, 0);
+    std::string s = "Some text \n Hello";
+    void * font = GLUT_BITMAP_9_BY_15;
+    for (std::string::iterator i = s.begin(); i != s.end(); ++i)
+	   {
+	    char c = *i;
+	    glColor3d(1.0, 0.0, 0.0);
+	    glutBitmapCharacter(font, c);
+	   }
 }
