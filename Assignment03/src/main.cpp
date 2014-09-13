@@ -42,6 +42,10 @@ glm::mat4 projection;//eye->clip
 glm::mat4 mvp;//premultiplied modelviewprojection
 glm::mat4 mvp2;//premultiplied modelviewprojection
 
+//Text output
+glm::mat4 text = glm::mat4(1000.0f);
+glm::mat4 mvp3 = projection * view * text;
+
 //--GLUT Callbacks
 void render();
 void update();
@@ -50,7 +54,7 @@ void keyboard(unsigned char key, int x_pos, int y_pos);
 void menu(int id);
 void mouse(int button, int state, int x, int y);
 void specialKeys(int key, int x_pos, int y_pos);
-void printText(char text[]);
+void printText(const std::string& text);
 
 //--Resource management
 bool initialize(char *vs, char *fs);
@@ -137,11 +141,9 @@ void render()
     //clear the screen
     glClearColor(0.0, 0.0, 0.2, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-
 
     //premultiply the matrix for this example
-    mvp = projection * view * model_earth;
+    mvp  = projection * view * model_earth;
     mvp2 = projection * view * model_moon;
 
     //enable the shader program
@@ -170,19 +172,50 @@ void render()
                            (void*)offsetof(Vertex,color));
 
     glDrawArrays(GL_TRIANGLES, 0, 36);//mode, starting index, count
+	
+	//Switch to the next mvp
     glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp2));
-    glDrawArrays(GL_TRIANGLES, 0, 36);//mode, starting index, count
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+	
+	glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
+	
+	//Add the text to string
+	std::string textValue;
+    if(ROTATE_FLAG)
+	   {
+	    if(ROTATE_FOREWARD && SPIN_FOREWARD)
+		   {
+            textValue = "Earth Rotating Counterclockwise, and spinning Counterclockwise.\0";
+           }
+	    else if(ROTATE_FOREWARD && !SPIN_FOREWARD)
+           {
+            textValue = "Earth Rotating Counterclockwise, and spinning Clockwise.\0";
+		   }
+	    else if(!ROTATE_FOREWARD && SPIN_FOREWARD)
+           {
+            textValue = "Earth Rotating Clockwise, and spinning Counterclockwise.\0";
+		   }
+	    else if(!ROTATE_FOREWARD && !SPIN_FOREWARD)
+           {
+            textValue = "Earth Rotating Clockwise, and spinning Clockwise.\0";
+		   }
+	   }
+    else
+	   {
+	    textValue = "Paused.\0";
+	   }
+	   
+	//Print   
+	printText(textValue);
 
     //clean up
     glDisableVertexAttribArray(loc_position);
     glDisableVertexAttribArray(loc_color);
+	
+	printText(textValue);
                            
     //swap the buffers
     glutSwapBuffers();
-	
-   //Print Text
-   char vale[3];
-   printText(vale);
 }
 
 void update()
@@ -631,16 +664,15 @@ float getDT()
     return ret;
 }
 
-void printText(char text[])
+void printText(const std::string& text)
 {
-    //Print the text
-	glRasterPos3f(10, 10, 0);
-    std::string s = "Some text \n Hello";
-    void * font = GLUT_BITMAP_9_BY_15;
-    for (std::string::iterator i = s.begin(); i != s.end(); ++i)
+    //Set Position
+	glRasterPos2f(10, 10);
+	
+	//Loop to null char
+    for (int index = 0; text[index] != '\0'; index++)
 	   {
-	    char c = *i;
-	    glColor3d(1.0, 0.0, 0.0);
-	    glutBitmapCharacter(font, c);
+	    glColor3d(0.6, 1.0, 0.0);
+	    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, text[index]);
 	   }
 }
