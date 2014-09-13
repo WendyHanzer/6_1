@@ -43,8 +43,8 @@ glm::mat4 mvp;//premultiplied modelviewprojection
 glm::mat4 mvp2;//premultiplied modelviewprojection
 
 //Text output
-glm::mat4 text = glm::mat4(1000.0f);
-glm::mat4 mvp3 = projection * view * text;
+//glm::mat4 text = glm::mat4(1000.0f);
+//glm::mat4 mvp3 = projection * view * text;
 
 //--GLUT Callbacks
 void render();
@@ -54,7 +54,7 @@ void keyboard(unsigned char key, int x_pos, int y_pos);
 void menu(int id);
 void mouse(int button, int state, int x, int y);
 void specialKeys(int key, int x_pos, int y_pos);
-void printText(const std::string& text);
+void printText(char text[]);
 
 //--Resource management
 bool initialize(char *vs, char *fs);
@@ -176,11 +176,12 @@ void render()
 	//Switch to the next mvp
     glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp2));
     glDrawArrays(GL_TRIANGLES, 0, 36);
-	
-	glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
+
+	//glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
 	
 	//Add the text to string
-	std::string textValue;
+	//char textValue[] = "Earth Rotating Counterclockwise, and spinning Counterclockwise.";
+/*
     if(ROTATE_FLAG)
 	   {
 	    if(ROTATE_FOREWARD && SPIN_FOREWARD)
@@ -204,16 +205,18 @@ void render()
 	   {
 	    textValue = "Paused.\0";
 	   }
-	   
+	   */
 	//Print   
-	printText(textValue);
+	//printText(textValue);
+
+glColor3f(.6, 0.0, 1.0);
+glRasterPos2f(10, 10);
+glutBitmapString(GLUT_BITMAP_9_BY_15, "Hello");
 
     //clean up
     glDisableVertexAttribArray(loc_position);
     glDisableVertexAttribArray(loc_color);
 	
-	printText(textValue);
-                           
     //swap the buffers
     glutSwapBuffers();
 }
@@ -664,7 +667,7 @@ float getDT()
     return ret;
 }
 
-void printText(const std::string& text)
+void printText(char text[])
 {
     //Set Position
 	glRasterPos2f(10, 10);
