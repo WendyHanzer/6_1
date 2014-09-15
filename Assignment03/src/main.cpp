@@ -43,8 +43,8 @@ glm::mat4 mvp;//premultiplied modelviewprojection
 glm::mat4 mvp2;//premultiplied modelviewprojection
 
 //Text output
-//glm::mat4 text = glm::mat4(1000.0f);
-//glm::mat4 mvp3 = projection * view * text;
+glm::mat4 text = glm::mat4(10.0f);
+glm::mat4 mvp3 = projection * view * text;
 
 //--GLUT Callbacks
 void render();
@@ -176,7 +176,8 @@ void render()
 	//Switch to the next mvp
     glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp2));
     glDrawArrays(GL_TRIANGLES, 0, 36);
-
+	glUniform1i(10, 1);
+	
 	//glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
 	
 	//Add the text to string
@@ -211,7 +212,7 @@ void render()
 
 glColor3f(.6, 0.0, 1.0);
 glRasterPos2f(10, 10);
-glutBitmapString(GLUT_BITMAP_9_BY_15, "Hello");
+glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'h');
 
     //clean up
     glDisableVertexAttribArray(loc_position);
