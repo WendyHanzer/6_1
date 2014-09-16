@@ -3,7 +3,6 @@
 #include <GL/glut.h> // doing otherwise causes compiler shouting
 #include <iostream>
 #include <chrono>
-#include <string>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -42,10 +41,6 @@ glm::mat4 view;//world->eye
 glm::mat4 projection;//eye->clip
 glm::mat4 mvp;//premultiplied modelviewprojection
 glm::mat4 mvp2;//premultiplied modelviewprojection
-
-//Text output
-//glm::mat4 text = glm::mat4(10.0f);
-//glm::mat4 mvp3 = projection * view * text;
 
 //--GLUT Callbacks
 void render();
@@ -177,8 +172,6 @@ void render()
 	//Switch to the next mvp
     glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp2));
     glDrawArrays(GL_TRIANGLES, 0, 36);
-	
-	//glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
 	
 	//Add the text to string
 	char *textValue;
