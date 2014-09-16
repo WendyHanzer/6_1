@@ -43,8 +43,8 @@ glm::mat4 mvp;//premultiplied modelviewprojection
 glm::mat4 mvp2;//premultiplied modelviewprojection
 
 //Text output
-glm::mat4 text = glm::mat4(10.0f);
-glm::mat4 mvp3 = projection * view * text;
+//glm::mat4 text = glm::mat4(10.0f);
+//glm::mat4 mvp3 = projection * view * text;
 
 //--GLUT Callbacks
 void render();
@@ -176,12 +176,11 @@ void render()
 	//Switch to the next mvp
     glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp2));
     glDrawArrays(GL_TRIANGLES, 0, 36);
-	glUniform1i(10, 1);
 	
 	//glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
 	
 	//Add the text to string
-	//char textValue[] = "Earth Rotating Counterclockwise, and spinning Counterclockwise.";
+	char textValue[] = "Earth Rotating Counterclockwise, and spinning Counterclockwise.";
 /*
     if(ROTATE_FLAG)
 	   {
@@ -206,13 +205,10 @@ void render()
 	   {
 	    textValue = "Paused.\0";
 	   }
-	   */
+*/	   
 	//Print   
-	//printText(textValue);
+	printText(textValue);
 
-glColor3f(.6, 0.0, 1.0);
-glRasterPos2f(10, 10);
-glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 'h');
 
     //clean up
     glDisableVertexAttribArray(loc_position);
@@ -613,7 +609,7 @@ static char* readShaderSource(const char* file)
 	fread(buffer, 1, size, source);
 	
 	//add end to buffer
-	buffer[size] = ' ';
+	buffer[size] = '\0';
 	
 	//Close file and return
 	fclose(source);
@@ -671,12 +667,23 @@ float getDT()
 void printText(char text[])
 {
     //Set Position
-	glRasterPos2f(10, 10);
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glLoadIdentity();
+	glRasterPos2i(10, 10);
 	
 	//Loop to null char
     for (int index = 0; text[index] != '\0'; index++)
 	   {
-	    glColor3d(0.6, 1.0, 0.0);
+	    glColor3d(0.6, 0.5, 0.8);
 	    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, text[index]);
 	   }
+
+    glPopMatrix();
+    glMatrixMode( GL_PROJECTION);
+    glPopMatrix();  
+    glMatrixMode( GL_MODELVIEW );
 }
