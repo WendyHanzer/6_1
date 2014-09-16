@@ -3,6 +3,7 @@
 #include <GL/glut.h> // doing otherwise causes compiler shouting
 #include <iostream>
 #include <chrono>
+#include <string>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -54,7 +55,7 @@ void keyboard(unsigned char key, int x_pos, int y_pos);
 void menu(int id);
 void mouse(int button, int state, int x, int y);
 void specialKeys(int key, int x_pos, int y_pos);
-void printText(char text[]);
+void printText(char *text);
 
 //--Resource management
 bool initialize(char *vs, char *fs);
@@ -139,7 +140,7 @@ void render()
     //--Render the scene
 
     //clear the screen
-    glClearColor(0.0, 0.0, 0.2, 1.0);
+    glClearColor(0.5, 0.5, 0.2, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //premultiply the matrix for this example
@@ -180,34 +181,39 @@ void render()
 	//glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
 	
 	//Add the text to string
-	//char textValue[] = "Earth Rotating Counterclockwise, and spinning Counterclockwise.";
-/*
+	char *textValue;
+	char rccscc[] = "    Earth Rotating Counterclockwise, and spinning Counterclockwise.\0";
+	char rccsc[] = "    Earth Rotating Counterclockwise, and spinning Clockwise.\0";
+	char rcscc[] = "    Earth Rotating Clockwise, and spinning Counterclockwise.\0";
+	char rcsc[] = "    Earth Rotating Clockwise, and spinning Clockwise.\0";
+	char pause[] = "    Paused.\0";
+
     if(ROTATE_FLAG)
 	   {
 	    if(ROTATE_FOREWARD && SPIN_FOREWARD)
 		   {
-            textValue = "Earth Rotating Counterclockwise, and spinning Counterclockwise.\0";
+            textValue = rccscc;
            }
 	    else if(ROTATE_FOREWARD && !SPIN_FOREWARD)
            {
-            textValue = "Earth Rotating Counterclockwise, and spinning Clockwise.\0";
+            textValue = rccsc;
 		   }
 	    else if(!ROTATE_FOREWARD && SPIN_FOREWARD)
            {
-            textValue = "Earth Rotating Clockwise, and spinning Counterclockwise.\0";
+            textValue = rcscc;
 		   }
 	    else if(!ROTATE_FOREWARD && !SPIN_FOREWARD)
            {
-            textValue = "Earth Rotating Clockwise, and spinning Clockwise.\0";
+            textValue = rcsc;
 		   }
 	   }
     else
 	   {
-	    textValue = "Paused.\0";
+	    textValue = pause;
 	   }
-*/
+
 	//Print   
-	
+	printText(textValue);
 
 
     //clean up
@@ -216,10 +222,6 @@ void render()
 	
     //swap the buffers
     glutSwapBuffers();
-
-char textValue[] = "Earth Rotating Counterclockwise, and spinning Counterclockwise.";
-printText(textValue);
-
 }
 
 void update()
@@ -668,15 +670,15 @@ float getDT()
     return ret;
 }
 
-void printText(char text[])
+void printText(char *text)
 {
     //Set Position
-	glRasterPos3f(0, 0, 0);
+	glColor3d(0.6, 0.5, 0.8);
+	glRasterPos2i(0, 8);
 	
 	//Loop to null char
     for (int index = 0; text[index] != '\0'; index++)
 	   {
-	    glColor3d(0.6, 0.5, 0.8);
 	    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, text[index]);
 	   }
 }
