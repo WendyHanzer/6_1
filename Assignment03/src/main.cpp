@@ -180,7 +180,7 @@ void render()
 	//glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
 	
 	//Add the text to string
-	char textValue[] = "Earth Rotating Counterclockwise, and spinning Counterclockwise.";
+	//char textValue[] = "Earth Rotating Counterclockwise, and spinning Counterclockwise.";
 /*
     if(ROTATE_FLAG)
 	   {
@@ -205,9 +205,9 @@ void render()
 	   {
 	    textValue = "Paused.\0";
 	   }
-*/	   
+*/
 	//Print   
-	printText(textValue);
+	
 
 
     //clean up
@@ -216,6 +216,10 @@ void render()
 	
     //swap the buffers
     glutSwapBuffers();
+
+char textValue[] = "Earth Rotating Counterclockwise, and spinning Counterclockwise.";
+printText(textValue);
+
 }
 
 void update()
@@ -667,13 +671,7 @@ float getDT()
 void printText(char text[])
 {
     //Set Position
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-	glRasterPos2i(10, 10);
+	glRasterPos3f(0, 0, 0);
 	
 	//Loop to null char
     for (int index = 0; text[index] != '\0'; index++)
@@ -681,9 +679,4 @@ void printText(char text[])
 	    glColor3d(0.6, 0.5, 0.8);
 	    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, text[index]);
 	   }
-
-    glPopMatrix();
-    glMatrixMode( GL_PROJECTION);
-    glPopMatrix();  
-    glMatrixMode( GL_MODELVIEW );
 }
