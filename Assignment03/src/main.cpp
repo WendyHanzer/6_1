@@ -42,6 +42,10 @@ glm::mat4 projection;//eye->clip
 glm::mat4 mvp;//premultiplied modelviewprojection
 glm::mat4 mvp2;//premultiplied modelviewprojection
 
+//Text
+glm::mat4 model_text = glm::translate(glm::mat4(1.0f), glm::vec3(11.0, 6.0, 0.0));
+glm::mat4 mvp3;
+
 //--GLUT Callbacks
 void render();
 void update();
@@ -141,6 +145,7 @@ void render()
     //premultiply the matrix for this example
     mvp  = projection * view * model_earth;
     mvp2 = projection * view * model_moon;
+	mvp3 = projection * view * model_text;
 
     //enable the shader program
     glUseProgram(program);
@@ -172,9 +177,10 @@ void render()
 	//Switch to the next mvp
     glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp2));
     glDrawArrays(GL_TRIANGLES, 0, 36);
+	glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(mvp3));
 	
 	//Add the text to string
-	char *textValue;
+	char *textValue = NULL;
 	char rccscc[] = "    Earth Rotating Counterclockwise, and spinning Counterclockwise.\0";
 	char rccsc[] = "    Earth Rotating Counterclockwise, and spinning Clockwise.\0";
 	char rcscc[] = "    Earth Rotating Clockwise, and spinning Counterclockwise.\0";
@@ -207,7 +213,6 @@ void render()
 
 	//Print   
 	printText(textValue);
-
 
     //clean up
     glDisableVertexAttribArray(loc_position);
