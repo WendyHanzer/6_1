@@ -1,42 +1,30 @@
-A simple example of matrix use in OpenGL
+This is a simple Model Loader Program
 ========================================
 
 Commands
 --------
 
-There will be two cubes, one is earth the one is the moon, the moon is scaled to 27% of the earth.
-The moon will rotate around the earth in the same direction the earht spins, changing rotation of the 
-earth will not change the moon rotation, but the spinning of the earth will change the moon. 
+There will be a model that is specified to be loaded on the screen rotating.
+There option to zoom in and out is handled by '=' '-' keys.
+The command line is given the shaders, and object file name. 
+The object is colored if there is a material file with the 
+same name as the obj, located in the obj directory, and is a .mtl file.
 
 Directions:
 
-Spin Direction Counterclockwise: 'z' and Down Arrow
+Zoom In: '='
+Zoom Out: '-'
 
-Spin Direction Clockwise: 'x' and Up Arrow
-
-Rotate Direction Clockwise: ',' and Right Arrow
-
-Rotate Direction Counterclockwise: '.' and Left Arrow
-
-Left-Click To Reverse Rotation
-
-Right-Click To Bring Up Menu
-
-The default "Year" of the cube is 5 minutes. 
-Press 1 to change the year to 1 minute.
+Escape Key quits game.
 
 Building This Example
 ---------------------
 
 *This example requires GLM*
-*On ubuntu it can be installed with this command*
 
->$ sudo apt-get install libglm-dev
+*To Make The Program*
 
-*On a Mac you can install GLM with this command(using homebrew)*
->$ brew install glm
-
-To build this example just 
+Navigate to the build directory.
 
 >$ cd build
 
@@ -48,14 +36,9 @@ The excutable will be put in bin
 
 To run the program
 
-*Program takes shader file names as command line arguments in the order of: vertexShader fragmentShader*
+*Program takes shader file and object names as command line arguments in the order of: vertexShader fragmentShader objectFile*
 
 >$ cd ../bin
 
->$ ./Matrix vertexShader.glsl fragmentShader.glsl
-
-Additional Notes For OSX Users
-------------------------------
-
-Ensure that the latest version of the Developer Tools is installed.
+>$ ./table vertexShader.glsl fragmentShader.glsl table.obj
 
