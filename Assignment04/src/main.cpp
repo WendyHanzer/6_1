@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     //Variables
 	char vertexLoc[] = "../bin/vertexShader.glsl",
 	     fragmentLoc[] = "../bin/fragmentShader.glsl",
-		 objectLoc[] = "../bin/object.obj";
+		 objectLoc[] = "../bin/table.obj";
 		 
     bool vertexStatus, fragmentStatus, objectStatus;
 
