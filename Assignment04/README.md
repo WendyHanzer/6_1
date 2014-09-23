@@ -16,7 +16,7 @@ Zoom In: '='
 
 Zoom Out: '-'
 
-Escape Key quits game.
+Escape Key quits program.
 
 Building This Example
 ---------------------
