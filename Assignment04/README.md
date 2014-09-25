@@ -13,9 +13,10 @@ same name as the obj, located in the obj directory, and is a .mtl file.
 Directions:
 
 Zoom In: '='
+
 Zoom Out: '-'
 
-Escape Key quits game.
+Escape Key quits program.
 
 Building This Example
 ---------------------
