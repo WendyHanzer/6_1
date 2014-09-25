@@ -25,6 +25,7 @@ GLuint vbo_geometry;// VBO handle for our geometry
 bool ROTATE_FLAG = true;
 bool ROTATE_FOREWARD = true;
 bool SPIN_FOREWARD = true;
+int SPIN_SPEED = 1;
 
 //uniform locations
 GLint loc_mvpmat;// Location of the modelviewprojection matrix in the shader
@@ -187,7 +188,7 @@ void update()
 
             //Rotate and translate object
             model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle * 10), glm::vec3(0.0, 1.0, 0.0));
+		            glm::rotate(glm::mat4(1.0f), (spinAngle * SPIN_SPEED), glm::vec3(0.0, 1.0, 0.0));
            }
 	    else if(ROTATE_FOREWARD && !SPIN_FOREWARD)
            {
@@ -197,7 +198,7 @@ void update()
 
             //Rotate and translate object
             model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle * 10), glm::vec3(0.0, 1.0, 0.0));
+		            glm::rotate(glm::mat4(1.0f), (spinAngle * SPIN_SPEED), glm::vec3(0.0, 1.0, 0.0));
 		   }
 	    else if(!ROTATE_FOREWARD && SPIN_FOREWARD)
            {
@@ -207,7 +208,7 @@ void update()
 
             //Rotate and translate object
             model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle * 10), glm::vec3(0.0, 1.0, 0.0));
+		            glm::rotate(glm::mat4(1.0f), (spinAngle * SPIN_SPEED), glm::vec3(0.0, 1.0, 0.0));
 		   }
 	    else if(!ROTATE_FOREWARD && !SPIN_FOREWARD)
            {
@@ -217,7 +218,7 @@ void update()
 
             //Rotate and translate object
             model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(rotateAngle), 0.0, 4.0 * cos(rotateAngle))) * 
-		            glm::rotate(glm::mat4(1.0f), (spinAngle * 10), glm::vec3(0.0, 1.0, 0.0));
+		            glm::rotate(glm::mat4(1.0f), (spinAngle * SPIN_SPEED), glm::vec3(0.0, 1.0, 0.0));
 		   }
 	   }
 				
@@ -268,6 +269,21 @@ void keyboard(unsigned char key, int x_pos, int y_pos)
 	if(key == 'x')
 	{
 	   SPIN_FOREWARD = true;
+	}
+	
+	//Spin speed
+	if(key == '-')
+	{
+	    SPIN_SPEED--;
+		if(SPIN_SPEED == 0)
+		   {
+		    SPIN_SPEED = 1;
+		   }
+	}
+	
+	if(key == '+')
+	{
+	    SPIN_SPEED++;
 	}
 }
 
