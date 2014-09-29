@@ -70,12 +70,23 @@ bool Object::readFile(char *fileLoc)
 	   { 
    		//Make mesh to work on
 		const aiMesh* objMesh = scene->mMeshes[outIndex];
-		const aiMaterial* mat = scene->mMaterials[outIndex];
+		const aiMaterial* mat;
 		aiColor4D objColor;
 		
-		if(AI_SUCCESS != mat->Get(AI_MATKEY_COLOR_DIFFUSE , objColor))
+		//Checks if there is a file
+		if(outIndex < scene->mNumMaterials)
 		   {
-	        objColor.r = 1.0;
+		    mat = scene->mMaterials[outIndex+1];
+		    if(AI_SUCCESS != mat->Get(AI_MATKEY_COLOR_DIFFUSE , objColor))
+		       {
+	            objColor.r = 1.0;
+			    objColor.g = 1.0;
+			    objColor.b = 1.0;
+		       }
+	       }
+	    else
+		   {
+			objColor.r = 1.0;
 			objColor.g = 1.0;
 			objColor.b = 1.0;
 		   }
