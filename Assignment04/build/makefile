@@ -1,11 +1,11 @@
 # Linux
-CC=g++
-LIBS= -lglut -lGLEW -lGL
+#CC=g++
+#LIBS= -lglut -lGLEW -lGL
 
 
 # For Macs uncomment the next line and comment out the previous one
-#CC=clang++
-#LIBS=  -framework OpenGL -framework GLUT -framework Cocoa -lGLEW -stdlib=libc++
+CC=clang++
+LIBS=  -framework OpenGL -framework GLUT -framework Cocoa -lGLEW -stdlib=libc++
 # Assuming you want to use a recent compiler
 
 #Paths for my Mac
@@ -29,3 +29,4 @@ object.o: ../src/object.cpp ../src/object.h
 
 clean:
 	rm ../bin/*.o ../bin/table 
+

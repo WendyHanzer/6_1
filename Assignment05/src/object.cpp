@@ -70,6 +70,15 @@ bool Object::readFile(char *fileLoc)
 	   { 
    		//Make mesh to work on
 		const aiMesh* objMesh = scene->mMeshes[outIndex];
+		const aiMaterial* mat = scene->mMaterials[outIndex];
+		aiColor4D objColor;
+		
+		if(AI_SUCCESS != mat->Get(AI_MATKEY_COLOR_DIFFUSE , objColor))
+		   {
+	        objColor.r = 1.0;
+			objColor.g = 1.0;
+			objColor.b = 1.0;
+		   }
 
 		//loop through the mesh to get the verticies and color
 		for(unsigned int indexMesh = 0; indexMesh < objMesh->mNumFaces; indexMesh++)
@@ -93,149 +102,65 @@ bool Object::readFile(char *fileLoc)
 				temp.position[0] = position->x;
 				temp.position[1] = position->y;
 				temp.position[2] = position->z;
-				temp.color[0] = 1.0;
-				temp.color[1] = 1.0;
-				temp.color[2] = 1.0;
+				temp.color[0] = objColor.r;
+				temp.color[1] = objColor.g;
+				temp.color[2] = objColor.b;
 
 				//Push on the vertex
 				data.push_back(temp);
 			   }
 		   }
 	   }
+	   
+    //Set the materials
+	if(!setMaterials(scene, fileLoc))
+	   {
+	    return false;
+	   }
 
     //Return true: no errors
     return true;
    }
 
-//Old method of reading in a file
-bool Object::readFile_Alternate(char *fileLoc)
+//Setup the materials
+bool Object::setMaterials(const aiScene* pScene, char *fileLoc)
    {
     //Variables
-	char *mtlFile;
-	int index = 0;
-    glm::vec3 color;
-	std::vector< glm::vec3 > temp_verticies;
-	bool vnFile = false, vtFile = false;
+	int slashLoc = 0;
+	char *path = new char[strlen(fileLoc)];
+	bool returnValue = true;
 	
-    //Open the file
-	FILE *source = fopen(fileLoc, "r");
-	
-	//Check if the file exists
-	if(source == NULL)
+    //Get the directory of the files
+	for(int index = 0; fileLoc[index] != '\0'; index++)
 	   {
-	    return false;
-	   }
-	
-	//Get the material file as well
-	mtlFile = new char[strlen(fileLoc)];
-	
-    //Loop to add the path of the mtl file
-	while(fileLoc[index] != '\0')
-	   {
-	    mtlFile[index] = fileLoc[index];
-		index++;
-	   }
-    mtlFile[index] = '\0';
-    mtlFile[index-1] = 'l';
-	mtlFile[index-2] = 't';
-	mtlFile[index-3] = 'm';
-	
-	//OPen material file
-	FILE *mtlsource = fopen(mtlFile, "r");
-	   
-    //Loop through the file
-	//The method of reading in the file came from opengl-tutorial.org
-	char word[50];
-	while( fscanf(source, "%s", word) != EOF)
-	   {
-	    //Check if the pointer is at a vertex
-	    if( strcmp( word, "v" ) == 0)
+	    //Increment for the slash
+	    if(fileLoc[index] == '/')
 		   {
-		    //Set a vertex to the points read in three points
-		    glm::vec3 vertex;
-			fscanf(source, "%f %f %f", &vertex.x, &vertex.y, &vertex.z);
-			temp_verticies.push_back(vertex);
-		   }
-		   
-	    //Check to set the normals
-		else if( strcmp( word, "vn" ) == 0)
-		   {
-			vnFile = true;
-		   }
-		   
-	    //Check to set the textures
-		else if( strcmp( word, "vt" ) == 0)
-		   {
-			vtFile = true;
-		   }
-		   
-	    //Check for the material to use
-	    else if(strcmp( word, "usemtl") == 0 && mtlsource != NULL)
-		   {
-			//Get the location of the diffuse
-		    fscanf(mtlsource, "%s", word);
-		    while(strcmp( word, "Kd") != 0)
-			   {
-			    fscanf(mtlsource, "%s", word);
-			   }
-			   
-		    //set the color to the diffuse
-			fscanf(mtlsource, "%f %f %f", &color.x, &color.y, &color.z);
-		   }
-		   
-	    //Check if the file is on a face
-	    else if(strcmp( word, "f") == 0)
-		   {
-		    //get the x, y, z of the file for each vertex
-		    float x, y, z, dummy;
-			
-			//Read in the correct face format
-			//Vertex only file
-			if( !vnFile && !vtFile )
-			   {
-			    fscanf(source, "%f %f %f", &x, &y, &z);
-			   }
-			//Vertex and vertex normal
-			else if( !vnFile && vtFile )
-			   {
-			    fscanf(source, "%f/%f %f/%f %f/%f", &x, &dummy, &y, &dummy, &z, &dummy);
-			   }
-			//Vertex and vertex normal
-			else if( vnFile && !vtFile )
-			   {
-			    fscanf(source, "%f//%f %f//%f %f//%f", &x, &dummy, &y, &dummy, &z, &dummy);
-			   }
-			//Vertex and vertex normal
-			else
-			   {
-			    fscanf(source, "%f/%f/%f %f/%f/%f %f/%f/%f", &x, &dummy, &dummy, &y, &dummy, &dummy, &z, &dummy, &dummy);
-			   }
-			
-			//Set the first vertex, and push onto data
-			Vertex temp_vertex = {{temp_verticies[x-1].x, temp_verticies[x-1].y, temp_verticies[x-1].z}, {color.x, color.y, color.z}};
-			data.push_back(temp_vertex);
-			
-			//Push second on to data
-			temp_vertex = {{temp_verticies[y-1].x, temp_verticies[y-1].y, temp_verticies[y-1].z}, {color.x, color.y, color.z}};
-		    data.push_back(temp_vertex);
-			
-			//push third onto data
-			temp_vertex = {{temp_verticies[z-1].x, temp_verticies[z-1].y, temp_verticies[z-1].z}, {color.x, color.y, color.z}};
-		    data.push_back(temp_vertex);
-			
-			//Count the number of faces made (number of triangles the program has)
-			faces++;
+		    slashLoc++;
 		   }
 	   }
 	   
-    //Close the files and free memory
-	fclose(mtlsource);
-	fclose(source);
-	delete[] mtlFile;
-	mtlFile = NULL;
+    //set the path
+	for(int index = 0, slshCount = 0; slshCount < slashLoc; index++ )
+	   {
+	    if(fileLoc[index] == '/')
+		   {
+		    slshCount++;
+		   }
+	    path[index] = fileLoc[index];
+	   }
+	   
+    //Loop through the materials
+	for(int index = 0; index < pScene->mNumMaterials; index++)
+	   {
+	    //Set the material
+		const aiMaterial* materials = pScene->mMaterials[index];
+		
+		//assign to null 
+	   }
 	
-	//No error return true
-	return true;
+	//Return 
+	return returnValue;
    }
    
 //Set the size of the vertex and color arrays together

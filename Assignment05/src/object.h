@@ -32,6 +32,7 @@ class Object
 	  //setup object file
 	  bool readFile(char *fileLoc);
       bool readFile_Alternate(char *fileLoc);
+	  bool setMaterials(const aiScene* pScene, char *fileLoc);
 	  
 	  //get the size for buffer
 	  int bufferSize();

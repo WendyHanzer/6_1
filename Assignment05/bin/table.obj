@@ -1,6 +1,6 @@
-# Blender v2.71 (sub 0) OBJ File: ''
+# Blender v2.71 (sub 0) OBJ File: ‘board.blend’
 # www.blender.org
-mtllib title.mtl
+mtllib table.mtl
 o Cube
 v 2.111888 -1.000000 -2.298158
 v 2.111888 -1.000000 2.552991
