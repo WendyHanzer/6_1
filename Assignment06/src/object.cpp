@@ -73,8 +73,8 @@ bool Object::readFile(char *fileLoc)
 		const aiMaterial* mat;
 		aiColor4D objColor;
 		
-		//Checks if there is a file, -1 since there is a default material
-		if(outIndex < scene->mNumMaterials && scene->mNumMaterials != 1)
+		//Checks if there is a file
+		if(outIndex < scene->mNumMaterials)
 		   {
 		    mat = scene->mMaterials[outIndex+1];
 		    if(AI_SUCCESS != mat->Get(AI_MATKEY_COLOR_DIFFUSE , objColor))
@@ -82,7 +82,8 @@ bool Object::readFile(char *fileLoc)
 	            objColor.r = 1.0;
 			    objColor.g = 1.0;
 			    objColor.b = 1.0;
-		       }	       }
+		       }
+	       }
 	    else
 		   {
 			objColor.r = 1.0;
@@ -121,9 +122,56 @@ bool Object::readFile(char *fileLoc)
 			   }
 		   }
 	   }
+	   
+    //Set the materials
+	if(!setMaterials(scene, fileLoc))
+	   {
+	    return false;
+	   }
 
     //Return true: no errors
     return true;
+   }
+
+//Setup the materials
+bool Object::setMaterials(const aiScene* pScene, char *fileLoc)
+   {
+    //Variables
+	int slashLoc = 0;
+	char *path = new char[strlen(fileLoc)];
+	bool returnValue = true;
+	
+    //Get the directory of the files
+	for(int index = 0; fileLoc[index] != '\0'; index++)
+	   {
+	    //Increment for the slash
+	    if(fileLoc[index] == '/')
+		   {
+		    slashLoc++;
+		   }
+	   }
+	   
+    //set the path
+	for(int index = 0, slshCount = 0; slshCount < slashLoc; index++ )
+	   {
+	    if(fileLoc[index] == '/')
+		   {
+		    slshCount++;
+		   }
+	    path[index] = fileLoc[index];
+	   }
+	   
+    //Loop through the materials
+	for(int index = 0; index < pScene->mNumMaterials; index++)
+	   {
+	    //Set the material
+		const aiMaterial* materials = pScene->mMaterials[index];
+		
+		//assign to null 
+	   }
+	
+	//Return 
+	return returnValue;
    }
    
 //Set the size of the vertex and color arrays together
