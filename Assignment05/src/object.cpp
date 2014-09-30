@@ -73,16 +73,17 @@ bool Object::readFile(char *fileLoc)
 		const aiMaterial* mat;
 		aiColor4D objColor;
 		
-		//Checks if there is a file, -1 since there is a default material
-		if(outIndex < scene->mNumMaterials && scene->mNumMaterials != 1)
+		//Checks if there is a material
+		if(outIndex < scene->mNumMaterials)
 		   {
-		    mat = scene->mMaterials[outIndex+1];
+		    mat = scene->mMaterials[outIndex];
 		    if(AI_SUCCESS != mat->Get(AI_MATKEY_COLOR_DIFFUSE , objColor))
 		       {
 	            objColor.r = 1.0;
 			    objColor.g = 1.0;
 			    objColor.b = 1.0;
-		       }	       }
+		       }	       
+		   }
 	    else
 		   {
 			objColor.r = 1.0;
