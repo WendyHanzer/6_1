@@ -1,4 +1,4 @@
-This is a simple Model Loader Program
+This is a simple Model Loader Program Using Assimp
 ========================================
 
 Commands
@@ -6,9 +6,8 @@ Commands
 
 There will be a model that is specified to be loaded on the screen rotating.
 There option to zoom in and out is handled by '=' '-' keys.
-The command line is given the shaders, and object file name. 
-The object is colored if there is a material file with the 
-same name as the obj, located in the obj directory, and is a .mtl file.
+This will load any file: tested with .3ds, .dae, .ply, .stl.
+This runs on Assimp, and hopefully does not Seg fault this time.
 
 Directions:
 
