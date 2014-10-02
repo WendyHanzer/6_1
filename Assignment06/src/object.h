@@ -15,10 +15,12 @@
 #include <iostream>
 #include <vector>
 
+#include "texture.h"
+
 struct Vertex
    {
     GLfloat position[3];
-    GLfloat color[3];
+    GLfloat uv[2];
    };
 
 class Object
@@ -38,11 +40,13 @@ class Object
 	  int bufferSize();
 	  int numFaces();
 	  int getSizeOf();
-	  void* getOffSetColor();
+	  void bindTexture();
+	  void* getOffSetUV();
 	  Vertex* getData();
 	  
    private:
 	  int faces;
 	  std::vector<Vertex> data;
 	  Assimp::Importer object;
+	  std::vector<Texture*> textures;
 };

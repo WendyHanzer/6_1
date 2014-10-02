@@ -1,7 +1,7 @@
 #include <iostream>
 #include "texture.h"
 
-Texture::Texture(GLenum TextureTarget, const std::string& FileName)
+Texture::Texture(GLenum TextureTarget, char *FileName)
 {
     m_textureTarget = TextureTarget;
     m_fileName      = FileName;

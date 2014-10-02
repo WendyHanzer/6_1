@@ -26,10 +26,11 @@ float SCALE = 1.0;
 //GL Values
 int w = 640, h = 480;
 GLuint program,
-       vertex_buffer;
+       vertex_buffer,
+	   texture_buffer;
 GLint mvp_location,
       position_location,
-	  color_location;
+	  tex_location;
 	  
 //Screen Matricies
 glm::mat4 model,
@@ -142,17 +143,18 @@ void display()
 	
 	//Set the buffer
 	glEnableVertexAttribArray( position_location );
-	glEnableVertexAttribArray( color_location );
+	glEnableVertexAttribArray( tex_location );
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 	glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, test.getSizeOf(), 0);
-	glVertexAttribPointer(color_location, 3, GL_FLOAT, GL_FALSE, test.getSizeOf(), test.getOffSetColor());
+	glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, test.getSizeOf(), test.getOffSetUV());
 	
 	//Draw object
+	test.bindTexture();
 	glDrawArrays(GL_TRIANGLES, 0, test.numFaces());
 	
 	//Clean pointers
 	glDisableVertexAttribArray(position_location);
-	glDisableVertexAttribArray(color_location);
+	glDisableVertexAttribArray(tex_location);
 	
 	//Swap the bufer
 	glutSwapBuffers();
@@ -215,6 +217,7 @@ bool init()
    
     //Initilize vertex buffer
 	glGenBuffers(1, &vertex_buffer);
+	glGenTextures(1, &texture_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, test.bufferSize(), test.getData(), GL_STATIC_DRAW);
 	
@@ -271,10 +274,10 @@ bool init()
 	   }
 	   
 	//color
-	color_location = glGetAttribLocation(program, const_cast<const char*>("v_color"));
-	if(color_location == -1)
+	tex_location = glGetAttribLocation(program, const_cast<const char*>("texcoord"));
+	if(tex_location == -1)
 	   {
-	    std::cerr << "Color not found.\n";
+	    std::cerr << "Texture not found.\n";
 	    return false;
 	   }
 	   
@@ -285,6 +288,8 @@ bool init()
 	    std::cerr << "MVP matrix not found.\n";
 	    return false;
 	   }
+	   
+    
 	
 	//Set the view and projetion
 	view = glm::lookAt( glm::vec3(0.0, 16.0, -16.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));

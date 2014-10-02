@@ -1,6 +1,6 @@
-varying vec3 color;
-
+uniform sampler2D myTextureSampler;
+varying vec2 UV;
 void main(void)
 {
-   gl_FragColor = vec4(color.rgb, 1.0);
+   gl_FragColor = texture2D( myTextureSampler, UV ).bgra;
 }

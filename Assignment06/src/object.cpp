@@ -58,6 +58,7 @@ bool Object::readFile(char *fileLoc)
    {
     //Setup the assimp scene
 	const aiScene* scene = object.ReadFile(fileLoc, aiProcess_Triangulate);
+	textures.resize(scene->mNumMaterials);
 
 	//Check for a false file
 	if( !scene )
@@ -71,25 +72,6 @@ bool Object::readFile(char *fileLoc)
    		//Make mesh to work on
 		const aiMesh* objMesh = scene->mMeshes[outIndex];
 		const aiMaterial* mat;
-		aiColor4D objColor;
-		
-		//Checks if there is a file
-		if(outIndex < scene->mNumMaterials)
-		   {
-		    mat = scene->mMaterials[outIndex+1];
-		    if(AI_SUCCESS != mat->Get(AI_MATKEY_COLOR_DIFFUSE , objColor))
-		       {
-	            objColor.r = 1.0;
-			    objColor.g = 1.0;
-			    objColor.b = 1.0;
-		       }
-	       }
-	    else
-		   {
-			objColor.r = 1.0;
-			objColor.g = 1.0;
-			objColor.b = 1.0;
-		   }
 
 		//loop through the mesh to get the verticies and color
 		for(unsigned int indexMesh = 0; indexMesh < objMesh->mNumFaces; indexMesh++)
@@ -107,15 +89,16 @@ bool Object::readFile(char *fileLoc)
 			for(int index = 0; index < 3; index++)
 			   {
 				//Get the next face vertex data
+				const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
 				const aiVector3D* position = &(objMesh->mVertices[face.mIndices[index]]);
+				const aiVector3D* uv = objMesh->HasTextureCoords(0) ? &(objMesh->mTextureCoords[0][face.mIndices[index]]) : &Zero3D;
 
 				//Get the 3 verticies of the current face
 				temp.position[0] = position->x;
 				temp.position[1] = position->y;
 				temp.position[2] = position->z;
-				temp.color[0] = objColor.r;
-				temp.color[1] = objColor.g;
-				temp.color[2] = objColor.b;
+				temp.uv[0] = uv->x;
+				temp.uv[1] = uv->y;
 
 				//Push on the vertex
 				data.push_back(temp);
@@ -140,6 +123,7 @@ bool Object::setMaterials(const aiScene* pScene, char *fileLoc)
 	int slashLoc = 0;
 	char *path = new char[strlen(fileLoc)];
 	bool returnValue = true;
+	int loc = 0;
 	
     //Get the directory of the files
 	for(int index = 0; fileLoc[index] != '\0'; index++)
@@ -159,15 +143,55 @@ bool Object::setMaterials(const aiScene* pScene, char *fileLoc)
 		    slshCount++;
 		   }
 	    path[index] = fileLoc[index];
+		loc++;
 	   }
-	   
+	   	   
     //Loop through the materials
 	for(int index = 0; index < pScene->mNumMaterials; index++)
 	   {
 	    //Set the material
 		const aiMaterial* materials = pScene->mMaterials[index];
-		
-		//assign to null 
+	    textures[index] = NULL;
+
+		if(materials->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+		   {
+		    aiString aiPath;
+		    if(materials->GetTexture(aiTextureType_DIFFUSE, 0, &aiPath, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
+			   {
+			    char *fullPath = new char[(strlen(path) + strlen(aiPath.data))];
+				for(int index = 0, loc_two = 0; index < (strlen(path) + strlen(aiPath.data)); index++)
+				   {
+				    if(index < loc)
+					   {
+					    fullPath[index] = path[index];
+					   }
+				    else if(aiPath.data[loc_two] != '\0')
+					   {
+					    fullPath[index] = aiPath.data[loc_two];
+						loc_two++;
+					   }
+				    else 
+					   {
+					    fullPath[index] = '\0';
+					   }
+				   }
+			    
+				textures[index] = new Texture(GL_TEXTURE_2D, fullPath);
+				
+			    if(!textures[index]->Load())
+				   {
+				    printf("Failed to Load Texture: %s\n", fullPath);
+					delete textures[index];
+					textures[index] = NULL;
+					returnValue = false;
+				   }
+			    else
+				   {
+				    printf("Loaded Texture: %s\n", fullPath);
+					returnValue = true;
+				   }
+			   }
+		   }
 	   }
 	
 	//Return 
@@ -195,13 +219,18 @@ int Object::getSizeOf()
    }
 
 //Get the offset of the color to vertex
-void* Object::getOffSetColor()
+void* Object::getOffSetUV()
    {
-    return (void*)offsetof(Vertex,color);
+    return (void*)offsetof(Vertex,uv);
    }
 
 //Return the data
 Vertex* Object::getData()
    {
     return &data[0];
+   }
+   
+void Object::bindTexture()
+   {
+    textures[0]->Bind(GL_TEXTURE0);
    }
