@@ -145,9 +145,12 @@ void display()
 	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 	
 	//Set the buffer
-	glActiveTexture(GL_TEXTURE0);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture_buffer);
+	if(test.hasTexture())
+	   {
+	    glActiveTexture(GL_TEXTURE0);
+	    glEnable(GL_TEXTURE_2D);
+	    glBindTexture(GL_TEXTURE_2D, texture_buffer);
+	   }
 	
 	glEnableVertexAttribArray( position_location );
 	glEnableVertexAttribArray( uv_location );
@@ -226,15 +229,17 @@ bool init()
     //Variables
    
     //Initilize vertex buffer
-	glEnable(GL_TEXTURE_2D);
 	glGenBuffers(1, &vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, test.bufferSize(), test.getData(), GL_STATIC_DRAW);
 	
-	glGenTextures(1, &texture_buffer);
-	glBindTexture(GL_TEXTURE_2D, texture_buffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, test.getImageColumns(), test.getImageRows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, test.getImageData());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	if(test.hasTexture())
+	   {
+	    glGenTextures(1, &texture_buffer);
+	    glBindTexture(GL_TEXTURE_2D, texture_buffer);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, test.getImageColumns(), test.getImageRows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, test.getImageData());
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	   }
 
 	
 	//Create Shader

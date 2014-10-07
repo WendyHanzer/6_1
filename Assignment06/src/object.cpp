@@ -26,6 +26,7 @@ Object::Object()
    {
     //All to do is set faces to 0
     faces = 0;
+	textures = false;
    }
 
 //Copy constructor
@@ -160,6 +161,7 @@ bool Object::setMaterials(const aiScene* pScene, char *fileLoc)
 			    char *fullPath = new char[(strlen(path) + strlen(aiPath.data))];
 				fullPath = strcat(path, aiPath.data);
 				std::cout<<fullPath<<std::endl;
+				textures = true;
 
 			   try 
 				  {
@@ -226,4 +228,9 @@ GLsizei Object::getImageColumns()
 GLsizei Object::getImageRows()
    {
     return m_pImage->rows();
+   }
+   
+bool Object::hasTexture()
+   {
+    return textures;
    }

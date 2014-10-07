@@ -38,6 +38,7 @@ class Object
 	  bool setMaterials(const aiScene* pScene, char *fileLoc);
 	  
 	  //get the size for buffer
+	  bool hasTexture();
 	  int bufferSize();
 	  int numFaces();
 	  int getSizeOf();
@@ -53,4 +54,5 @@ class Object
 	  Assimp::Importer object;
       Magick::Image* m_pImage;
       Magick::Blob m_blob;
+	  bool textures;
 };
