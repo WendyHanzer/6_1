@@ -1,4 +1,4 @@
-This is a simple Model Loader Program
+Model Loader with Textures
 ========================================
 
 Commands
@@ -9,6 +9,8 @@ There option to zoom in and out is handled by '=' '-' keys.
 The command line is given the shaders, and object file name. 
 The object is colored if there is a material file with the 
 same name as the obj, located in the obj directory, and is a .mtl file.
+This will load a single texture into the buffer, and place that single 
+texture on the object loaded.
 
 Directions:
 
@@ -20,9 +22,11 @@ Escape Key quits game.
 Building This Example
 ---------------------
 
-*This example requires GLM*
+*This example requires GLM, and uses ImageMagick for Image loading*
 
 *To Make The Program*
+
+*This Program was built and Run on a Mac, but should transition to Ubuntu Fine*
 
 Navigate to the build directory.
 
@@ -34,11 +38,16 @@ Navigate to the build directory.
 
 The excutable will be put in bin
 
-To run the program
+To run the program with textured bix built in:
+
+>$ cd ../bin
+
+>$ ./table
+
+The program also can take a texture as a command line so to run that:
 
 *Program takes shader file and object names as command line arguments in the order of: vertexShader fragmentShader objectFile*
 
 >$ cd ../bin
 
->$ ./table vertexShader.glsl fragmentShader.glsl table.obj
-
+>$ ./table vertexShader.glsl fragmentShader.glsl <Object>
