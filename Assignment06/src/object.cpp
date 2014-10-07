@@ -58,7 +58,6 @@ bool Object::readFile(char *fileLoc)
    {
     //Setup the assimp scene
 	const aiScene* scene = object.ReadFile(fileLoc, aiProcess_Triangulate);
-	textures.resize(scene->mNumMaterials);
 
 	//Check for a false file
 	if( !scene )
@@ -71,7 +70,6 @@ bool Object::readFile(char *fileLoc)
 	   { 
    		//Make mesh to work on
 		const aiMesh* objMesh = scene->mMeshes[outIndex];
-		const aiMaterial* mat;
 
 		//loop through the mesh to get the verticies and color
 		for(unsigned int indexMesh = 0; indexMesh < objMesh->mNumFaces; indexMesh++)
@@ -136,7 +134,8 @@ bool Object::setMaterials(const aiScene* pScene, char *fileLoc)
 	   }
 	   
     //set the path
-	for(int index = 0, slshCount = 0; slshCount < slashLoc; index++ )
+	int index, slshCount;
+	for( index = 0, slshCount = 0; slshCount < slashLoc; index++ )
 	   {
 	    if(fileLoc[index] == '/')
 		   {
@@ -145,13 +144,13 @@ bool Object::setMaterials(const aiScene* pScene, char *fileLoc)
 	    path[index] = fileLoc[index];
 		loc++;
 	   }
+	   path[index] = '\0';
 	   	   
     //Loop through the materials
 	for(int index = 0; index < pScene->mNumMaterials; index++)
 	   {
 	    //Set the material
 		const aiMaterial* materials = pScene->mMaterials[index];
-	    textures[index] = NULL;
 
 		if(materials->GetTextureCount(aiTextureType_DIFFUSE) > 0)
 		   {
@@ -159,37 +158,21 @@ bool Object::setMaterials(const aiScene* pScene, char *fileLoc)
 		    if(materials->GetTexture(aiTextureType_DIFFUSE, 0, &aiPath, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS)
 			   {
 			    char *fullPath = new char[(strlen(path) + strlen(aiPath.data))];
-				for(int index = 0, loc_two = 0; index < (strlen(path) + strlen(aiPath.data)); index++)
-				   {
-				    if(index < loc)
-					   {
-					    fullPath[index] = path[index];
-					   }
-				    else if(aiPath.data[loc_two] != '\0')
-					   {
-					    fullPath[index] = aiPath.data[loc_two];
-						loc_two++;
-					   }
-				    else 
-					   {
-					    fullPath[index] = '\0';
-					   }
-				   }
+				fullPath = strcat(path, aiPath.data);
+				std::cout<<fullPath<<std::endl;
+
+			   try 
+				  {
+				   m_pImage = new Magick::Image(fullPath);
+				   m_pImage->write(&m_blob, "RGBA");
+				   returnValue = true;
+				  }
+			   catch (Magick::Error& Error) 
+				  {
+				   std::cout << "Error loading texture '" << fullPath << "': " << Error.what() << std::endl;
+				   return false;
+				  }
 			    
-				textures[index] = new Texture(GL_TEXTURE_2D, fullPath);
-				
-			    if(!textures[index]->Load())
-				   {
-				    printf("Failed to Load Texture: %s\n", fullPath);
-					delete textures[index];
-					textures[index] = NULL;
-					returnValue = false;
-				   }
-			    else
-				   {
-				    printf("Loaded Texture: %s\n", fullPath);
-					returnValue = true;
-				   }
 			   }
 		   }
 	   }
@@ -229,8 +212,18 @@ Vertex* Object::getData()
    {
     return &data[0];
    }
-   
-void Object::bindTexture()
+
+const GLvoid* Object::getImageData()
    {
-    textures[0]->Bind(GL_TEXTURE0);
+    return m_blob.data();
+   }
+   
+GLsizei Object::getImageColumns()
+   {
+    return m_pImage->columns();
+   }
+
+GLsizei Object::getImageRows()
+   {
+    return m_pImage->rows();
    }

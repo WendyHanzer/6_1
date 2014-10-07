@@ -30,7 +30,7 @@ GLuint program,
 	   texture_buffer;
 GLint mvp_location,
       position_location,
-	  tex_location;
+	  uv_location;
 	  
 //Screen Matricies
 glm::mat4 model,
@@ -54,15 +54,17 @@ int main(int argc, char *argv[])
     //Variables
 	char vertexLoc[] = "../bin/vertexShader.glsl",
 	     fragmentLoc[] = "../bin/fragmentShader.glsl",
-		 objectLoc[] = "../bin/table.obj";
+		 objectLoc[] = "../bin/box.obj";
 		 
     bool vertexStatus, fragmentStatus, objectStatus;
 
     //Start GLut
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(w, h);
 	glutCreateWindow("Object Loader");
+	
+	Magick::InitializeMagick(*argv);
 
     //Set the files
 	if(argc == 4)
@@ -118,6 +120,7 @@ int main(int argc, char *argv[])
     //End program 
 	glDeleteProgram(program);
 	glDeleteBuffers(1, &vertex_buffer);
+	glDeleteTextures(1, &texture_buffer);
     return 0;
    }
 
@@ -142,19 +145,26 @@ void display()
 	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 	
 	//Set the buffer
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture_buffer);
+	
 	glEnableVertexAttribArray( position_location );
-	glEnableVertexAttribArray( tex_location );
+	glEnableVertexAttribArray( uv_location );
+	
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	
+	
 	glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, test.getSizeOf(), 0);
-	glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, test.getSizeOf(), test.getOffSetUV());
+	glVertexAttribPointer(uv_location, 2, GL_FLOAT, GL_FALSE, test.getSizeOf(), test.getOffSetUV());
+    
 	
 	//Draw object
-	test.bindTexture();
 	glDrawArrays(GL_TRIANGLES, 0, test.numFaces());
 	
 	//Clean pointers
 	glDisableVertexAttribArray(position_location);
-	glDisableVertexAttribArray(tex_location);
+	glDisableVertexAttribArray(uv_location);
 	
 	//Swap the bufer
 	glutSwapBuffers();
@@ -216,10 +226,16 @@ bool init()
     //Variables
    
     //Initilize vertex buffer
+	glEnable(GL_TEXTURE_2D);
 	glGenBuffers(1, &vertex_buffer);
-	glGenTextures(1, &texture_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, test.bufferSize(), test.getData(), GL_STATIC_DRAW);
+	
+	glGenTextures(1, &texture_buffer);
+	glBindTexture(GL_TEXTURE_2D, texture_buffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, test.getImageColumns(), test.getImageRows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, test.getImageData());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 	
 	//Create Shader
 	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -233,12 +249,14 @@ bool init()
 	GLint shader_status;
 	
 	//Vertex Shader
+	char buffer[512];
 	glShaderSource(vertex_shader, 1, (const GLchar**) &vertexSource, NULL);
 	glCompileShader(vertex_shader);
 	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &shader_status);
 	if(!shader_status)
 	   {
-	    std::cerr << "Vertex Shader failed to compile.\n";
+	    glGetShaderInfoLog(vertex_shader, 512, NULL, buffer);
+	    std::cerr << "Vertex Shader failed to compile.\n"<<buffer<<std::endl;
 	    return false;
 	   }
 	   
@@ -248,7 +266,8 @@ bool init()
 	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &shader_status);
 	if(!shader_status)
 	   {
-	    std::cerr << "Fragment Shader failed to compile.\n";
+	    glGetShaderInfoLog(fragment_shader, 512, NULL, buffer);
+	    std::cerr << "Fragment Shader failed to compile.\n"<<buffer<<std::endl;
 	    return false;
 	   }
 	   
@@ -274,8 +293,8 @@ bool init()
 	   }
 	   
 	//color
-	tex_location = glGetAttribLocation(program, const_cast<const char*>("texcoord"));
-	if(tex_location == -1)
+	uv_location = glGetAttribLocation(program, const_cast<const char*>("texcoord"));
+	if(uv_location == -1)
 	   {
 	    std::cerr << "Texture not found.\n";
 	    return false;
@@ -288,8 +307,6 @@ bool init()
 	    std::cerr << "MVP matrix not found.\n";
 	    return false;
 	   }
-	   
-    
 	
 	//Set the view and projetion
 	view = glm::lookAt( glm::vec3(0.0, 16.0, -16.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));

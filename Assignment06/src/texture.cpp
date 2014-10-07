@@ -10,14 +10,16 @@ Texture::Texture(GLenum TextureTarget, char *FileName)
 
 bool Texture::Load()
 {
-    try {
-         m_pImage = new Magick::Image(m_fileName);
-         m_pImage->write(&m_blob, "RGBA");
-     }
-     catch (Magick::Error& Error) {
-        std::cout << "Error loading texture '" << m_fileName << "': " << Error.what() << std::endl;
-        return false;
-    }
+    try 
+	   {
+	    m_pImage = new Magick::Image(m_fileName);
+	    m_pImage->write(&m_blob, "RGBA");
+	   }
+     catch (Magick::Error& Error) 
+	    {
+         std::cout << "Error loading texture '" << m_fileName << "': " << Error.what() << std::endl;
+         return false;
+        }
 
     glGenTextures(1, &m_textureObj);
     glBindTexture(m_textureTarget, m_textureObj);
@@ -30,7 +32,7 @@ bool Texture::Load()
 
 void Texture::Bind(GLenum TextureUnit)
 {
-    glActiveTexture(TextureUnit);
-    glBindTexture(m_textureTarget, m_textureObj);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture_buffer);
 }
 

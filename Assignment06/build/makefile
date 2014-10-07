@@ -13,9 +13,9 @@ PATHI= -I/usr/local/include/
 PATHL= -L/usr/local/lib/
 
 # Compiler flags
-CXXFLAGS= -g -Wall -std=c++0x
+CXXFLAGS= -g -Wall -std=c++0x -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16
 
-all: main.o shader.o object.o texture.o
+all: main.o shader.o object.o
 	$(CC) $(CXXFLAGS) -o ../bin/table ../bin/main.o ../bin/shader.o ../bin/object.o ../bin/texture.o $(LIBS) $(PATHI) $(PATHL)
 
 main.o: ../src/main.cpp

@@ -1,11 +1,11 @@
 # Linux
-CC=g++
-LIBS= -lglut -lGLEW -lGL -lassimp
+#CC=g++
+#LIBS= -lglut -lGLEW -lGL -lassimp
 
 
 # For Macs uncomment the next line and comment out the previous one
-#CC=clang++
-#LIBS=  -framework OpenGL -framework GLUT -framework Cocoa -lGLEW -stdlib=libc++ -lassimp
+CC=clang++
+LIBS=  -framework OpenGL -framework GLUT -framework Cocoa -lGLEW -stdlib=libc++ -lassimp
 # Assuming you want to use a recent compiler
 
 #Paths for my Mac

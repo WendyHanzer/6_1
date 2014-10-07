@@ -15,7 +15,8 @@
 #include <iostream>
 #include <vector>
 
-#include "texture.h"
+//Imagemagick
+#include <ImageMagick-6/Magick++.h>
 
 struct Vertex
    {
@@ -40,13 +41,16 @@ class Object
 	  int bufferSize();
 	  int numFaces();
 	  int getSizeOf();
-	  void bindTexture();
 	  void* getOffSetUV();
 	  Vertex* getData();
+	  const GLvoid* getImageData();
+	  GLsizei getImageColumns();
+	  GLsizei getImageRows();
 	  
    private:
 	  int faces;
 	  std::vector<Vertex> data;
 	  Assimp::Importer object;
-	  std::vector<Texture*> textures;
+      Magick::Image* m_pImage;
+      Magick::Blob m_blob;
 };
