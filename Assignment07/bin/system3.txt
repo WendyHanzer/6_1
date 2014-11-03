@@ -1,0 +1,12 @@
+p   ../bin/objects/sun.obj		1	0	2.0   0
+p   ../bin/objects/mercury.obj 	0.00350431	4.151100042	88   0
+p   ../bin/objects/venus.obj 	0.008695402	1.623376623	225   0
+p   ../bin/objects/earth.obj 	0.009163793	1		360	   1
+p   ../bin/objects/mars.obj		0.004875718	0.526315789	687	   2
+p   ../bin/objects/jupiter.obj 	0.102586207	0.083333333	10475   8
+p   ../bin/objects/saturn.obj 	0.086206897	0.033898305	10585   8
+p   ../bin/objects/uranus.obj 	0.036781609	0.011904762	30660   8
+p   ../bin/objects/neptune.obj 	0.034913793	0.006060606	60225   8	
+p   ../bin/objects/pluto.obj 	0.001652299	0.004032258	360   0
+m   ../bin/objects/moon.obj 	0.27	27	27  
+p   ../bin/objects/sky.obj		50	0	0  0
