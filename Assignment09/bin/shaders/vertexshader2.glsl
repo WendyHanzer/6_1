@@ -8,9 +8,16 @@ uniform mat4 ModelView; //<-- This will be used to represent View * Model // <li
 varying vec4 color;
 varying vec2 UV;
 
+
+
+
 void main(void)
    {
-	vec4 lightPosition = vec4( 10000.0 , 10000.0, 11000.0 ,1.0);
+	   
+	   
+	   
+	   
+	vec4 lightPosition = vec4( 2.0 , 2.0, 2.0 ,2.0);
 	vec4 ambient = vec4(.3,.3,.3,1);
 	vec3 pos = (ModelView * v_position).xyz;
 	vec3 L = normalize( lightPosition.xyz - pos );

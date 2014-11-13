@@ -27,6 +27,10 @@ using namespace std;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
+
+
+
 //Structure to hold the objects 
 struct Object
    {
@@ -47,6 +51,18 @@ GLint loc_color;
 GLint loc_mvpmat;
 GLint loc_normal;
 GLint loc_modelView;
+GLint loc_isDL;
+GLint loc_isSL;
+GLint loc_isPL;
+GLint loc_isAmb;
+GLint loc_Light1x;
+GLint loc_Light1y;
+GLint loc_Light1z;
+GLint loc_Light2x;
+GLint loc_Light2y;
+GLint loc_Light2z;
+
+
 glm::mat4 view;
 glm::mat4 projection;
 Object world[2];
@@ -71,6 +87,22 @@ bool initialize();
 glm::mat4 getView();
 void cleanUp();
 bool loadShader(const char *v_shader, const char *f_shader);
+
+//Lighting Controls
+float ENABLE_AMB = 1;
+float ENABLE_DL = 1;
+float ENABLE_PL = 1;
+float ENABLE_SL = 1.2;
+float light1x = 1;
+float light1y = -1;
+float light1z = 1;
+float light2x = -1;
+float light2y = -1;
+float light2z = 1;
+int	  lightControlled = 0;
+void  lightsEnabled();
+
+
 
 //--Main
 int main(int argc, char **argv)
@@ -139,9 +171,27 @@ void render()
 	world[OBJ_INDEX].ModelView = view * world[OBJ_INDEX].model;
 	world[OBJ_INDEX].mvp = projection * view * world[OBJ_INDEX].model;
 
+	
 	//upload the matrix to the shader
 	glUniformMatrix4fv(loc_mvpmat, 1, GL_FALSE, glm::value_ptr(world[OBJ_INDEX].mvp));
 	glUniformMatrix4fv(loc_modelView, 1, GL_FALSE, glm::value_ptr(world[OBJ_INDEX].ModelView));
+	
+	   glUniform1f(loc_isAmb,ENABLE_AMB );
+	   glUniform1f(loc_isDL,ENABLE_DL );
+	   glUniform1f(loc_isPL,ENABLE_PL );
+	   glUniform1f(loc_isSL,ENABLE_SL );
+	   
+	   glUniform1f(loc_Light1x, light1x );
+	   glUniform1f(loc_Light1y, light1y );
+	   glUniform1f(loc_Light1z, light1z );
+	   
+	   glUniform1f(loc_Light2x, light2x );
+	   glUniform1f(loc_Light2y, light2y );
+	   glUniform1f(loc_Light2z, light2z );
+
+
+	   //glVertexAttribPointer(loc_isAmb,1,GL_BYTE,GL_FALSE,sizeof(bool),0)
+
 
 	// Render Objects
 	world[OBJ_INDEX].objectMesh.Render(loc_position, loc_color, loc_normal);
@@ -190,9 +240,7 @@ void keyboard(unsigned char key, int x_pos, int y_pos)
 	//Reset the camera to complete view
 	if(key == ' ')
 	   {
-		Z_VIEW_ADJ = 0;
-		Y_VIEW_ADJ = 11.0;
-		X_VIEW_ADJ = 0;
+		   lightControlled = !lightControlled;
 	   }
 
 	//Move the camera
@@ -270,6 +318,31 @@ void keyboard(unsigned char key, int x_pos, int y_pos)
 	   {
 		Z_FOCUS += 1.0;
 	   }
+	   
+	   //Y-Focus
+	   if(key == '1')
+	   {
+		   ENABLE_AMB = !ENABLE_AMB;
+		   lightsEnabled();
+	   }
+	   if(key == '2')
+	   {
+		   ENABLE_DL = !ENABLE_DL;
+		   lightsEnabled();
+
+	   }
+	   //Z-Focus
+	   if(key == '3')
+	   {
+		   ENABLE_PL = !ENABLE_PL;
+		   lightsEnabled();
+	   }
+	   if(key == '4')
+	   {
+		   ENABLE_SL = !ENABLE_SL;
+		   lightsEnabled();
+		   
+	   }
    }
 
 //Initilizing the program called by main to set the shaders, objects, and bullet
@@ -287,7 +360,7 @@ bool initialize()
 	   }
 
 	//Load in the default shaders
-	if(!loadShader("../bin/shaders/vertexshader.glsl", "../bin/shaders/fragmentshader.glsl"))
+	if(!loadShader("../bin/shaders/vertexshader3.glsl", "../bin/shaders/fragmentshader3.glsl"))
 	   {
 		return false;
 	   }
@@ -305,6 +378,9 @@ bool initialize()
 	//Enable depth testing
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	   
+	   
+	   
 
 	//Return Good
 	return true;
@@ -316,24 +392,59 @@ void keyboardSpecial(int key, int x_pos, int y_pos)
 	//Left Arrow
 	if(key == GLUT_KEY_LEFT)
 	   {
-
+		   if(lightControlled)
+		   {
+		   light2x -= .5;
+		   }
+		   else
+		   {
+			light1x -= .5;
+		   }
 	   }
 
 	//Right Arrow
 	if(key == GLUT_KEY_RIGHT)
 	   {
+		   if(lightControlled)
+		   {
+			   light2x += .5;
+		   }
+		   else
+		   {
+				light1x += .5;
+		   }
 
 	   }
 
 	//Up Arrow
 	if(key == GLUT_KEY_UP)
 	   {
+		   if(lightControlled)
+		   {
+			light2z += .5;
+		    light2y += .5;
+		   }
+		   else
+		   {
+			light1z -= .5;
+		    light1y -= .5;
+		   }
 
 	   }
 
 	//Down Arrow
 	if(key == GLUT_KEY_DOWN)
 	   {
+		   if(lightControlled)
+		   {
+			light2z -= .5;
+		    light2y -= .5;
+		   }
+		   else
+		   {
+		   light1z -= .5;
+		   light1y -= .5;
+		   }
 
 	   }
    }
@@ -506,14 +617,103 @@ bool loadShader(const char *v_shader, const char *f_shader)
 		return false;
 	   }
 
-	//model view
-	loc_modelView = glGetUniformLocation(program, const_cast<const char*>("ModelView"));
-	if(loc_modelView == -1)
+	   //model view
+	   loc_modelView = glGetUniformLocation(program, const_cast<const char*>("ModelView"));
+	   if(loc_modelView == -1)
 	   {
-		std::cerr << "ModelView matrix not found.\n";
-		return false;
+		   std::cerr << "ModelView matrix not found.\n";
+		   return false;
 	   }
+	   
+	   //Enable Ambience
+	   loc_isAmb = glGetUniformLocation(program, const_cast<const char*>("isAmb"));
+	   if(loc_isAmb == -1)
+	   {
+		   std::cerr << "Amb not found.\n";
+		   return false;
+	   }
+	   
+	   //Enable DirectLight
+	   loc_isDL = glGetUniformLocation(program, const_cast<const char*>("isDL"));
+	   if(loc_isDL == -1)
+	   {
+		   std::cerr << "DL not found.\n";
+		   return false;
+	   }
+	   
+	   //Enable PointLight
+	   loc_isPL = glGetUniformLocation(program, const_cast<const char*>("isPL"));
+	   if(loc_isPL == -1)
+	   {
+		   std::cerr << "PL not found.\n";
+		   return false;
+	   }
+	   
+	   //Enable SpotLight
+	   loc_isSL = glGetUniformLocation(program, const_cast<const char*>("isSL"));
+	   if(loc_isSL == -1)
+	   {
+		   std::cerr << "SL not found.\n";
+		   return false;
+	   }
+	   
+	   //Enable Lighting 1 Coordinates
+	   loc_Light1x = glGetUniformLocation(program, const_cast<const char*>("light1x"));
+	   if(loc_Light1x == -1)
+	   {
+		   std::cerr << "Light 1 X position not found.\n";
+		   return false;
+	   }
+	   
+	   loc_Light1y = glGetUniformLocation(program, const_cast<const char*>("light1y"));
+	   if(loc_Light1y == -1)
+	   {
+		   std::cerr << "Light 1 Y position not found.\n";
+		   return false;
+	   }
+	   
+	   loc_Light1z = glGetUniformLocation(program, const_cast<const char*>("light1z"));
+	   if(loc_Light1z == -1)
+	   {
+		   std::cerr << "Light 1 Z position not found.\n";
+		   return false;
+	   }
+	   
+	   //Enable Lighting 2 Coordinates
+	   loc_Light2x = glGetUniformLocation(program, const_cast<const char*>("light2x"));
+	   if(loc_Light2x == -1)
+	   {
+		   std::cerr << "Light 2 X position not found.\n";
+		   return false;
+	   }
+	   
+	   loc_Light2y = glGetUniformLocation(program, const_cast<const char*>("light2y"));
+	   if(loc_Light2y == -1)
+	   {
+		   std::cerr << "Light 2 Y position not found.\n";
+		   return false;
+	   }
+	   
+	   loc_Light2z = glGetUniformLocation(program, const_cast<const char*>("light2z"));
+	   if(loc_Light2z == -1)
+	   {
+		   std::cerr << "Light 2 Z position not found.\n";
+		   return false;
+	   }
+
+
+	   
+	
 
 	//All was well
 	return true;
    }
+
+void lightsEnabled(){
+
+	
+	std::cout << "Ambient:" << ENABLE_AMB << std::endl;
+	std::cout << "DL:" << ENABLE_DL << std::endl;
+	std::cout << "PL:" << ENABLE_PL << std::endl;
+	std::cout << "SL:" << ENABLE_SL << std::endl;
+}

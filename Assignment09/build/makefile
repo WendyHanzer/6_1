@@ -2,6 +2,10 @@
 CC=g++ 
 LIBS= -lglut -lGLEW -lGL -lassimp `Magick++-config --cppflags --cxxflags --ldflags --libs`
 
+# Mac
+#CC=clang++
+#LIBS= -framework OpenGL -framework GLUT -framework Cocoa -lGLEW -stdlib=libc++ -lassimp `Magick++-config --cppflags --cxxflags --ldflags --libs`
+
 # Compiler flags
 CXXFLAGS= -g -Wall -std=c++0x
 
