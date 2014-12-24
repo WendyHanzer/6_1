@@ -1,4 +1,25 @@
-CS 680 Computer Grahpics
+#CS680 Computer Graphics
+##University of Nevada Reno
+###Nolan Burfield
 
+###Individual Projects
 
-Nolan Burfield
+- Simple Matrix
+- Simple Matrix Additional Things
+- More Matrix Manipulations
+- .obj Model Loader
+- Assimp Model Loading
+- Texture Loading
+
+###Group Projects Team Members
+
+- Andy Garcia
+- Hardy Thrower
+
+###Group Projects 
+
+- Solar System
+- Air Hockey
+- Lighting 
+- Labyrinth
+- Fish Bowl Toss
